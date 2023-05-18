@@ -8,9 +8,8 @@ from time import sleep, time
 import cv2 as cv
 import numpy as np
 import sys
-sys.path.append('..')
-import photo_test.find_work_area
-#print(photo_test.find_work_area.A)
+#sys.path.append('..')
+#import photo_test.find_work_area
 import RPi.GPIO as GPIO
 
 config = rpi_gpio.config
@@ -174,6 +173,23 @@ def go_to_coor(x, y):
     dy = y - int(coordinates[coor_y] / 1000)
     x_go(dx, 1)
     y_go(dy, 1)
+
+def run_gpio():
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setwarnings(True)
+    GPIO.setup([config.X_END, config.Y_END, config.Z_END, config.F_END], GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    
+    GPIO.setup([config.x_St, config.x_Dr, config.x_En], GPIO.OUT, initial=GPIO.LOW)
+    GPIO.output(config.x_En, 1)
+    
+    GPIO.setup([config.y_St, config.y_Dr, config.y_En], GPIO.OUT, initial=GPIO.LOW)
+    GPIO.output(config.y_En, 1)
+    
+    GPIO.setup([config.z_St, config.z_Dr, config.z_En], GPIO.OUT, initial=GPIO.LOW)
+    GPIO.output(config.z_En, 1)
+
+def stop_gpio():
+    GPIO.cleanup()
 
 if __name__ == "__main__":
     GPIO.setmode(GPIO.BOARD)

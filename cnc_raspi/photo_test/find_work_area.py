@@ -192,6 +192,7 @@ def find_corner_by_cam_one(img):
     return (640 - x_intersection)/34.5 , (480 - y_intersection)/35, img
 
 if __name__ == '__main__':
+    '''
     img = rotate('/tmp/out_2_85682.jpeg', angle = 1.8)
     #img = cv.imread('/tmp/out_2_76735_.jpeg')
     dx, dy, img = find_corner_by_cam_one(img)
@@ -213,4 +214,4 @@ if __name__ == '__main__':
     out_pix_coor = find_board_by_cam_two('/tmp/out_linear.jpg', 666)
     coor_board_by_cam_two = convert_cam_0_to_mm(out_pix_coor)
     print(coor_board_by_cam_two)
-    '''
+    
