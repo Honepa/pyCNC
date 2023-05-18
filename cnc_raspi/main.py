@@ -26,7 +26,7 @@ if __name__ == '__main__':
             rpi_gpio.cnc.z_go(1500, 1)
             t = str(int(time())%100000)
             img = rpi_gpio.cnc.get_frames(2)
-            cv.imwrite(f'/tmp/out_{2}_{coordinates}_{t}.jpeg', img)
+            cv.imwrite(f'/tmp/out_{2}_{rpi_gpio.cnc.coordinates}_{t}.jpeg', img)
             rpi_gpio.cnc.init_axis_z()
             print(f"[INFO:] {corner} -- photographed!")
         rpi_gpio.cnc.stop_gpio()
