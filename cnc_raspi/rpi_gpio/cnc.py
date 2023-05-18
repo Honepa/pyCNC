@@ -52,7 +52,7 @@ def z_step(direction, speed_z):
     sleep((round(round((pow(speed_z* 800, -1) * pow(10, 5))) / 2)) * 10**-6) 
     coordinates[coor_z] += direction * 125
 
-def x_go(mm, speed_x):
+def x_go(mm, speed_x = 1):
     steps = mm * config.X_STEPS_MM
     GPIO.output(config.x_En, 0)
     d = FRW if steps > 0 else BCK
@@ -60,7 +60,7 @@ def x_go(mm, speed_x):
         x_step(d, speed_x)
     GPIO.output(config.x_En, 1)
     
-def y_go(mm, speed_y):
+def y_go(mm, speed_y = 1):
     steps = mm * config.Y_STEPS_MM
     GPIO.output(config.y_En, 0)
     d = FRW if steps > 0 else BCK
@@ -68,7 +68,7 @@ def y_go(mm, speed_y):
         y_step(d, speed_y)
     GPIO.output(config.y_En, 1)
     
-def z_go(mm, speed_z):
+def z_go(mm, speed_z = 1):
     steps = mm * config.Z_STEPS_MM
     GPIO.output(config.z_En, 0)
     d = FRW if steps > 0 else BCK
