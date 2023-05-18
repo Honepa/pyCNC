@@ -67,8 +67,8 @@ def find_board_by_cam_two(img_path, req_perimeter):
         perimeter_ = perimeter(box) / 10.286
         if ((perimeter_ < req_perimeter + 50) and (perimeter_ > req_perimeter - 50)):
             out_coor = box
-            cv.drawContours(img,[box],0,(255,0,0),2) # рисуем прямоугольник
-            plt.imshow(img),plt.show()
+            #cv.drawContours(img,[box],0,(255,0,0),2) # рисуем прямоугольник
+            #plt.imshow(img),plt.show()
             #print(img_path)
             #print(box)
             #print(convert_cam_0_to_mm(box))
