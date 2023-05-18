@@ -67,8 +67,8 @@ def find_board_by_cam_two(img_path, req_perimeter):
         perimeter_ = perimeter(box) / 10.286
         if ((perimeter_ < req_perimeter + 50) and (perimeter_ > req_perimeter - 50)):
             out_coor = box
-            #cv.drawContours(img,[box],0,(255,0,0),2) # рисуем прямоугольник
-            #plt.imshow(img),plt.show()
+            cv.drawContours(img,[box],0,(255,0,0),2) # рисуем прямоугольник
+            plt.imshow(img),plt.show()
             #print(img_path)
             #print(box)
             #print(convert_cam_0_to_mm(box))
@@ -208,10 +208,10 @@ if __name__ == '__main__':
     #dx, dy = find_corner_by_cam_one('/tmp/out_2_815.jpeg')
     #print(dx, dy)
     '''
-    img_orig = cv.imread('/home/duhanin/Изображения/cnc/cnc_test_1/test_ten/out_0_912.jpeg')
+    img_orig = cv.imread('/tmp/out_0_19039.jpeg')
     out = correcting_perspective(img_orig)
     cv.imwrite('/tmp/out_linear.jpg', out)
-    out_pix_coor = find_board_by_cam_two('/tmp/out_linear.jpg', 666)
+    out_pix_coor = find_board_by_cam_two('/tmp/out_linear.jpg', 240)
     coor_board_by_cam_two = convert_cam_0_to_mm(out_pix_coor)
     print(coor_board_by_cam_two)
     

@@ -75,7 +75,35 @@ def z_go(mm, speed_z = 1):
         z_step(d, speed_z)
     GPIO.output(config.z_En, 1)
 
-def cnc_init():
+def init_axis_x():
+    count = 0
+    while((GPIO.input(config.X_END)) and (count < 270)):
+        x_go(-100, 1)
+        count += 1
+    x_go(500, 1)
+    count = 0
+    while((GPIO.input(config.X_END)) and (count < 500)):
+        x_go(-1, 0.05)
+        count += 1
+    while(not (GPIO.input(config.X_END))):
+        x_go(1, 0.1)
+    coordinates[coor_x] = 0
+
+def init_axis_y():
+    count = 0
+    while((GPIO.input(config.Y_END)) and (count < 270)):
+        y_go(-100, 1)
+        count += 1
+    y_go(500, 1)
+    count = 0
+    while((GPIO.input(config.Y_END)) and (count < 500)):
+        y_go(-1, 0.05)
+        count += 1
+    while(not (GPIO.input(config.Y_END))):
+        y_go(1, 0.1)
+    coordinates[coor_y] = 0
+
+def init_axis_z():
     count = 0
     while((GPIO.input(config.Z_END)) and (count < 270)):
         z_go(-100, 1)
@@ -89,31 +117,10 @@ def cnc_init():
         z_go(1, 0.1)
     coordinates[coor_z] = 0
 
-    count = 0
-    while((GPIO.input(config.X_END)) and (count < 270)):
-        x_go(-100, 1)
-        count += 1
-    x_go(500, 1)
-    count = 0
-    while((GPIO.input(config.X_END)) and (count < 500)):
-        x_go(-1, 0.05)
-        count += 1
-    while(not (GPIO.input(config.X_END))):
-        x_go(1, 0.1)
-    coordinates[coor_x] = 0
-    
-    count = 0
-    while((GPIO.input(config.Y_END)) and (count < 270)):
-        y_go(-100, 1)
-        count += 1
-    y_go(500, 1)
-    count = 0
-    while((GPIO.input(config.Y_END)) and (count < 500)):
-        y_go(-1, 0.05)
-        count += 1
-    while(not (GPIO.input(config.Y_END))):
-        y_go(1, 0.1)
-    coordinates[coor_y] = 0
+def cnc_init():
+    init_axis_z()
+    init_axis_x()
+    init_axis_y()
     
 def zero_freza():
     count = 0
