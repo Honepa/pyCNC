@@ -2,7 +2,7 @@ import rpi_gpio.cnc
 import photo_test.find_work_area
 import cv2 as cv
 from time import time
-
+cccc = list()
 if __name__ == '__main__':
     rpi_gpio.cnc.run_gpio()
     try:
@@ -53,10 +53,11 @@ if __name__ == '__main__':
                 dy = int(round(dy, 2) * 100)
                 #print(dx, dy)
                 count += 1
+                cccc = rpi_gpio.cnc.coordinates
             if count < 150:
                 print(rpi_gpio.cnc.coordinates)
                 coor = rpi_gpio.cnc.coordinates
-                coor_of_plate += [coor]
+                coor_of_plate += [cccc]
             else:
                 print(f"[ERROR:] error by corner in {corner}")
             rpi_gpio.cnc.init_axis_z()
