@@ -12,6 +12,8 @@ import sys
 #import photo_test.find_work_area
 import RPi.GPIO as GPIO
 
+find_coor = list()
+
 config = rpi_gpio.config
 FRW =  1
 BCK = -1
@@ -20,6 +22,9 @@ coor_y     = 1
 coor_z     = 2
 coor_freza = 3
 coordinates = [0, 0, 0, 0]
+
+def save_coor():
+    find_coor.append(coordinates)
 
 def x_step(direction, speed_x):
     d = 1 if direction == FRW else 0

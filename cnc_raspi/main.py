@@ -56,12 +56,11 @@ if __name__ == '__main__':
                 cccc = rpi_gpio.cnc.coordinates
             if count < 150:
                 print(rpi_gpio.cnc.coordinates)
-                coor = rpi_gpio.cnc.coordinates
-                coor_of_plate += [cccc]
+                rpi_gpio.cnc.save_coor()
             else:
                 print(f"[ERROR:] error by corner in {corner}")
             rpi_gpio.cnc.init_axis_z()
-        print(coor_of_plate)
+        print(rpi_gpio.cnc.find_coor)
         rpi_gpio.cnc.stop_gpio()
     except Exception as e:
         print(e)
