@@ -3,7 +3,7 @@ TODO:
 1) sum time by onece
 2) averenge END's for best init
 """
-import config
+import rpi_gpio.config
 from time import sleep, time
 import cv2 as cv
 import numpy as np
@@ -12,7 +12,7 @@ import sys
 #import photo_test.find_work_area
 import RPi.GPIO as GPIO
 
-config = config
+config = rpi_gpio.config
 FRW =  1
 BCK = -1
 coor_x     = 0
