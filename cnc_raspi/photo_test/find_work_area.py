@@ -78,12 +78,12 @@ def find_board_by_cam_two(img_path, req_diagonal, min_side, max_side):
         diagonal_ = get_diagonal(box) / 10.286
         min_side_, max_side_ = det_min_max_side(box)
         if ((diagonal_ < req_diagonal + 15) and (diagonal_ > req_diagonal - 15)) and ((min_side_ < min_side + 10) and (min_side_ > min_side - 10)) and ((max_side_ < max_side + 10) and (max_side_ > max_side - 10)):
-            print(diagonal_)
+            #print(diagonal_)
             out_coor = box
-            cv.drawContours(img,[box],0,(255,0,0),2) # рисуем прямоугольник
-            plt.imshow(img),plt.show()
+            #cv.drawContours(img,[box],0,(255,0,0),2) # рисуем прямоугольник
+            #plt.imshow(img),plt.show()
             #print(img_path)
-            print(box)
+            #print(box)
             #print(convert_cam_0_to_mm(box))
             #cv.imwrite('/home/duhanin/Изображения/cnc/cnc_test_1/test_ten/find_plate_'+str(img_path.split('/')[-1].split('.')[0]) + '_' + str(int(time())%1000) + '.jpg',img)
     return out_coor
@@ -136,8 +136,8 @@ def get_best_vertical(v):
                         counter += 1
             distance.append([i, counter])
             del counter
-    print(distance)
-    print(max(distance, key = lambda x: x[1]))
+    #print(distance)
+    #print(max(distance, key = lambda x: x[1]))
     p = get_p_vertical(v[max(distance, key = lambda x: x[1])[0]], v, max(distance, key = lambda x: x[1])[0])
     return v[max(distance, key = lambda x: x[1])[0]]
 
@@ -166,7 +166,7 @@ def get_best_horizontal(h):
             distance.append([i, counter])
             del counter
     #print(distance)
-    print(max(distance, key = lambda x: x[1]))
+    #print(max(distance, key = lambda x: x[1]))
     return h[max(distance, key = lambda x: x[1])[0]]
 
 def find_corner_by_cam_one(img):
@@ -176,12 +176,12 @@ def find_corner_by_cam_one(img):
     lines = cv.HoughLinesP(edges,1,np.pi/180,2,minLineLength=30,maxLineGap=10)
     vertical, horizontal, img = get_vertical_and_horizontal(lines, img)
     
-    print(vertical)
+    #print(vertical)
 
     best_vertical = get_best_vertical(vertical)
-    print(best_vertical)
+    #print(best_vertical)
     best_horisontal = get_best_horizontal(horizontal)
-    print(best_horisontal)
+    #print(best_horisontal)
 
     cv.line(img,(best_vertical[0],best_vertical[1]),(best_vertical[2],best_vertical[3]),(0,0,255),2)
     cv.line(img,(best_horisontal[0],best_horisontal[1]),(best_horisontal[2],best_horisontal[3]),(255,255,0),2)
@@ -197,7 +197,7 @@ def find_corner_by_cam_one(img):
         y_intersection = int(str(intersect[0][1]).split('/')[0]) / int(str(intersect[0][1]).split('/')[1])
     else:
         y_intersection = int(str(intersect[0][1]))
-    print(x_intersection, y_intersection)
+    #print(x_intersection, y_intersection)
     cv.circle(img, (int(x_intersection),int(y_intersection)), radius=2, color=(255, 0, 255), thickness=-1)
     cv.circle(img, (640,480), radius=2, color=(255, 255, 255), thickness=-1)
     #plt.imshow(img)
