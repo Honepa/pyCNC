@@ -7,6 +7,11 @@ if __name__ == '__main__':
     rpi_gpio.cnc.run_gpio()
     try:
         rpi_gpio.cnc.cnc_init()
+
+        rpi_gpio.cnc.go_to_coor(11852, 10901)
+        rpi_gpio.cnc.zero_freza()
+        print(rpi_gpio.cnc.coordinates)
+        '''
         rpi_gpio.cnc.go_to_coor(0, 16000)
     
         img = rpi_gpio.cnc.get_frames(0)
@@ -61,6 +66,7 @@ if __name__ == '__main__':
                 print(f"[ERROR:] error by corner in {corner}")
             rpi_gpio.cnc.init_axis_z()
         print(rpi_gpio.cnc.find_coor)
+        '''
         rpi_gpio.cnc.stop_gpio()
     except Exception as e:
         print(e)
