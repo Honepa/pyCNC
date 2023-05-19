@@ -232,9 +232,9 @@ if __name__ == "__main__":
     #zero cam one - 32.64 ; 0 ???31.93???
     cnc_init()
     
-    x_go(1707)
-    y_go(13012)
-    z_go(1500)
+    x_go(15696)
+    y_go(3076)
+    z_go(1600)
     print(coordinates)
     #x_go(0, 1)
     #y_go(2672, 1)
