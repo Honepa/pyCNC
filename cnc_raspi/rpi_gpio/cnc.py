@@ -3,7 +3,7 @@ TODO:
 1) sum time by onece
 2) averenge END's for best init
 """
-import rpi_gpio.config
+import config
 from time import sleep, time
 import cv2 as cv
 import numpy as np
