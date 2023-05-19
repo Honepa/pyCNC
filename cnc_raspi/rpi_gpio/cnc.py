@@ -12,7 +12,7 @@ import sys
 #import photo_test.find_work_area
 import RPi.GPIO as GPIO
 
-config = rpi_gpio.config
+config = config
 FRW =  1
 BCK = -1
 coor_x     = 0
