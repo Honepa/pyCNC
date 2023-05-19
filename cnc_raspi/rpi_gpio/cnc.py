@@ -132,10 +132,11 @@ def zero_freza():
     print(GPIO.input(config.F_END))
     f = 100
     while( int(round(f/1000)) < 700 and coordinates[coor_z] < 2000000):
-        z_go(1, 0.25)
+        #z_go(1, 0.25)
         f = 0
         for i in range(1000):
             f += GPIO.input(config.F_END)
+        print(f)
     print(coordinates[coor_z])
 
 
