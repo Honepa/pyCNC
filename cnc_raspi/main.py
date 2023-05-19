@@ -71,3 +71,5 @@ if __name__ == '__main__':
     except Exception as e:
         print(e)
         rpi_gpio.cnc.stop_gpio()
+    except KeyboardInterrupt:
+        rpi_gpio.cnc.stop_gpio()
