@@ -54,6 +54,7 @@ if __name__ == '__main__':
                 #print(dx, dy)
                 count += 1
             if count < 150:
+                print(rpi_gpio.cnc.coordinates)
                 coor_of_plate.append(rpi_gpio.cnc.coordinates)
             else:
                 print(f"[ERROR:] error by corner in {corner}")
