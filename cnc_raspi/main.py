@@ -38,8 +38,8 @@ if __name__ == '__main__':
             #print(dx, dy)
             count = 0
             while ((count > 150) or ((dx**2 + dy**2)**0.5 > 10)):
-                x_go(-dx, 1)
-                y_go(dy, 1)
+                rpi_gpio.cnc.x_go(-dx, 1)
+                rpi_gpio.cnc.y_go(dy, 1)
                 img = get_frames(2)
                 t = str(int(time())%100000)
                 cv.imwrite(f'/tmp/out_{2}_{t}.jpeg', img)
