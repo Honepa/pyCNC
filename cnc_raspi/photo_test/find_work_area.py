@@ -4,17 +4,28 @@ from matplotlib import pyplot as plt
 from glob import glob
 from time import time, sleep
 from sympy import Line, Point
+import math
+from statistics import mean, median
 
-A = 9
-def test():
-    print('testt')
+def get_diagonal(box):
+    try:
+        x0, y0 = mean([x for x, y in box]), mean([y for x, y in box])
+        min_pt = [[x, y] for x, y in box if x <= x0 and y >= y0][0]
+        max_pt = [[x, y] for x, y in box if x >= x0 and y <= y0][0]
 
-def perimeter(box):
+        return math.dist(min_pt, max_pt)
+    except:
+        #print(box)
+        #print([[x, y] for x, y in box if x <= x0 and y <= y0])
+        return 0
+
+def det_min_max_side(box):
     A = ((box[1][0] - box[0][0])**2 + (box[1][1] - box[0][1])**2)**0.5
     B = ((box[2][0] - box[1][0])**2 + (box[2][1] - box[1][1])**2)**0.5
     C = ((box[3][0] - box[2][0])**2 + (box[3][1] - box[2][1])**2)**0.5
     D = ((box[3][0] - box[0][0])**2 + (box[3][1] - box[0][1])**2)**0.5
-    return A + B + C + D
+    sides = [A, B, C, D]
+    return min(sides) / 10.286, max(sides) / 10.286
 
 def rotate(img_path, angle):
     img = cv.imread(img_path)
@@ -50,7 +61,7 @@ def convert_cam_0_to_mm(coor):
         del l
     return out
 
-def find_board_by_cam_two(img_path, req_perimeter):
+def find_board_by_cam_two(img_path, req_diagonal, min_side, max_side):
     out_coor = list()
     hsv_min = np.array((0, 54, 5), np.uint8)
     hsv_max = np.array((187, 255, 253), np.uint8)
@@ -64,13 +75,15 @@ def find_board_by_cam_two(img_path, req_perimeter):
         rect = cv.minAreaRect(cnt)
         box = cv.boxPoints(rect)
         box = np.int0(box)
-        perimeter_ = perimeter(box) / 10.286
-        if ((perimeter_ < req_perimeter + 50) and (perimeter_ > req_perimeter - 50)):
+        diagonal_ = get_diagonal(box) / 10.286
+        min_side_, max_side_ = det_min_max_side(box)
+        if ((diagonal_ < req_diagonal + 15) and (diagonal_ > req_diagonal - 15)) and ((min_side_ < min_side + 10) and (min_side_ > min_side - 10)) and ((max_side_ < max_side + 10) and (max_side_ > max_side - 10)):
+            print(diagonal_)
             out_coor = box
-            #cv.drawContours(img,[box],0,(255,0,0),2) # рисуем прямоугольник
-            #plt.imshow(img),plt.show()
+            cv.drawContours(img,[box],0,(255,0,0),2) # рисуем прямоугольник
+            plt.imshow(img),plt.show()
             #print(img_path)
-            #print(box)
+            print(box)
             #print(convert_cam_0_to_mm(box))
             #cv.imwrite('/home/duhanin/Изображения/cnc/cnc_test_1/test_ten/find_plate_'+str(img_path.split('/')[-1].split('.')[0]) + '_' + str(int(time())%1000) + '.jpg',img)
     return out_coor
@@ -193,25 +206,29 @@ def find_corner_by_cam_one(img):
 
 if __name__ == '__main__':
     '''
-    img = rotate('/tmp/out_2_85682.jpeg', angle = 1.8)
+    imgs_path = glob("/tmp/test_cnc/*")
+    for img_path in imgs_path:
+        img = rotate(img_path, angle = 1.8)
     #img = cv.imread('/tmp/out_2_76735_.jpeg')
-    dx, dy, img = find_corner_by_cam_one(img)
-    plt.imshow(img)
-    plt.show()
-    dx = int(round(dx, 2) * 100)
-    dy = int(round(dy, 2) * 100)
-    print(dx, dy)
+        dx, dy, img = find_corner_by_cam_one(img)
+        plt.imshow(img)
+        plt.show()
+        dx = int(round(dx, 2) * 100)
+        dy = int(round(dy, 2) * 100)
+        print(dx, dy)
     #img = rotate('/tmp/out_2_4343.jpeg', angle = 1.8)
     #plt.imshow(img)
     #plt.show()
-    cv.imwrite('/tmp/out_2_4343_rotate.jpg', img)
+        cv.imwrite(f'/tmp/test_cnc_out/out_corner_{img_path}', img)
     #dx, dy = find_corner_by_cam_one('/tmp/out_2_815.jpeg')
     #print(dx, dy)
     '''
-    img_orig = cv.imread('/tmp/out_0_19039.jpeg')
-    out = correcting_perspective(img_orig)
-    cv.imwrite('/tmp/out_linear.jpg', out)
-    out_pix_coor = find_board_by_cam_two('/tmp/out_linear.jpg', 240)
+    #img_orig = cv.imread('/tmp/out_0_19039.jpeg')
+    #out = correcting_perspective(img_orig)
+    #cv.imwrite('/tmp/out_linear.jpg', out)
+    a = 55
+    b = 65
+    out_pix_coor = find_board_by_cam_two('/tmp/out_linear.jpg', (a**2 + b**2)**0.5 ,55, 65)
     coor_board_by_cam_two = convert_cam_0_to_mm(out_pix_coor)
     print(coor_board_by_cam_two)
     

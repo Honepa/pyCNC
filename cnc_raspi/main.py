@@ -17,7 +17,9 @@ if __name__ == '__main__':
         img_orig = cv.imread(f'/tmp/out_{0}_{str(t)}.jpeg')
         out = photo_test.find_work_area.correcting_perspective(img_orig)
         cv.imwrite('/tmp/out_linear.jpg', out)
-        out_pix_coor = photo_test.find_work_area.find_board_by_cam_two('/tmp/out_linear.jpg', 240)
+        a = 55
+        b = 65
+        out_pix_coor = photo_test.find_work_area.find_board_by_cam_two('/tmp/out_linear.jpg', (a**2 + b**2)**0.5 ,55, 65)
         coor_board_by_cam_two = photo_test.find_work_area.convert_cam_0_to_mm(out_pix_coor)
         coor_for_cam_one = [[int(round(x, 2)*100) - 3264, int(round(y, 2)*100) + 2672] for [x, y] in coor_board_by_cam_two]
         print(coor_for_cam_one)
