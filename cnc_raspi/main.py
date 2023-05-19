@@ -6,9 +6,9 @@ cccc = list()
 if __name__ == '__main__':
     rpi_gpio.cnc.run_gpio()
     try:
-        rpi_gpio.cnc.cnc_init()
+        #rpi_gpio.cnc.cnc_init()
 
-        rpi_gpio.cnc.go_to_coor(12759, 6151)
+        #rpi_gpio.cnc.go_to_coor(12759, 6151)
         rpi_gpio.cnc.zero_freza()
         print(rpi_gpio.cnc.coordinates)
         '''
