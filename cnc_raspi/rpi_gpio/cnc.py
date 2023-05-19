@@ -129,13 +129,13 @@ def cnc_init():
     
 def zero_freza():
     init_axis_z()
-    print(GPIO.input.F_END)
+    print(GPIO.input(config.F_END))
     f = 100
     while( int(round(f/1000)) < 900 and coordinates[coor_z] < 80000000):
         z_go(1, 0.25)
         f = 0
         for i in range(1000):
-            f += GPIO.input.F_END
+            f += GPIO.input(config.F_END)
     print(coordinates[coor_z])
 
 
