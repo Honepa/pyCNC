@@ -138,7 +138,7 @@ def get_zero_freza():
             f = 0
             for i in range(100):
                 f += GPIO.input(config.F_END)
-            print(f)
+            #print(f)
         test_coor_z_list.append(coordinates[coor_z])
         z_go(-400, 1)
     print(test_coor_z_list)
