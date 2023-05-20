@@ -133,6 +133,7 @@ def get_zero_freza():
     f = 0
     test_coor_z_list = list()
     for i in range(10):
+        f = 0
         while( f < 90 and coordinates[coor_z] < 6000000):
             z_go(1, 0.25)
             f = 0
