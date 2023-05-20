@@ -130,7 +130,7 @@ def cnc_init():
 def zero_freza():
     init_axis_z()
     f = 100
-    while( int(round(f/100)) < 70 or coordinates[coor_z] < 2000000):
+    while( int(round(f/100)) > 70 or coordinates[coor_z] < 2000000):
         z_go(1, 0.25)
         f = 0
         for i in range(100):
