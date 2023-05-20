@@ -2,6 +2,8 @@ import rpi_gpio.cnc
 import photo_test.find_work_area
 import cv2 as cv
 from time import time
+import sys
+
 cccc = list()
 if __name__ == '__main__':
     rpi_gpio.cnc.run_gpio()
