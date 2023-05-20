@@ -129,21 +129,14 @@ def cnc_init():
     
 def zero_freza():
     #init_axis_z()
-    while 1:
-        try:
-            print(GPIO.input(config.F_END))
-        except KeyboardInterrupt:
-            break
-    '''
     f = 100
-    while( int(round(f/1000)) < 700 and coordinates[coor_z] < 2000000):
+    while( int(round(f/100)) < 70 and coordinates[coor_z] < 2000000):
         #z_go(1, 0.25)
         f = 0
-        for i in range(1000):
+        for i in range(100):
             f += GPIO.input(config.F_END)
         print(f)
     print(coordinates[coor_z])
-    '''
 
 def get_frames(id):
     cam = cv.VideoCapture(id)
@@ -192,7 +185,7 @@ if __name__ == "__main__":
     GPIO.setwarnings(True)
     GPIO.setup([config.X_END, config.Y_END, config.Z_END], GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.setup(config.F_END, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    
+
     GPIO.setup([config.x_St, config.x_Dr, config.x_En], GPIO.OUT, initial=GPIO.LOW)
     GPIO.output(config.x_En, 1)
     
