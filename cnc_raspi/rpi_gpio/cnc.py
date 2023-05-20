@@ -129,7 +129,7 @@ def cnc_init():
     init_axis_y()
     
 def get_zero_freza():
-    init_axis_z()
+    #init_axis_z()
     f = 0
     test_coor_z_list = list()
     for i in range(5):
@@ -142,11 +142,11 @@ def get_zero_freza():
             #print(f)
         test_coor_z_list.append(coordinates[coor_z])
         z_go(-400, 4)
-    print(test_coor_z_list)
-    print(mean(test_coor_z_list))
+    #print(test_coor_z_list)
+    #print(mean(test_coor_z_list))
     coordinates[coor_freza] = mean(test_coor_z_list)
-    print(coordinates)
-    init_axis_z()
+    print(f"{coordinates[coor_x]} {coordinates[coor_y]} {coordinates[coor_freza]}")
+    #init_axis_z()
 
 def get_frames(id):
     cam = cv.VideoCapture(id)

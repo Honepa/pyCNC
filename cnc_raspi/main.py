@@ -6,7 +6,7 @@ cccc = list()
 if __name__ == '__main__':
     rpi_gpio.cnc.run_gpio()
     try:
-        #rpi_gpio.cnc.cnc_init()
+        rpi_gpio.cnc.cnc_init()
         x = 10733
         y = 8395
         gcode = list()
@@ -19,12 +19,16 @@ if __name__ == '__main__':
                 else:
                     x -= 100
             y -= 100
-        print(len(gcode))
-        print(gcode[0])
-        print(gcode[-1])
+        for x, y in gcode:
+            rpi_gpio.cnc.go_to_coor(x, y)
+            rpi_gpio.cnc.get_zero_freza()
+        #print(len(gcode))
+        #print(gcode[0])
+        #print(gcode[-1])
+
         #rpi_gpio.cnc.go_to_coor(12759, 6151)
         #rpi_gpio.cnc.get_zero_freza()
-        print(rpi_gpio.cnc.coordinates)
+        #print(rpi_gpio.cnc.coordinates)
         '''
         rpi_gpio.cnc.go_to_coor(0, 16000)
     
