@@ -1,5 +1,6 @@
 import cv2 as cv
 import matplotlib.pyplot as plt
+import numpy as np
 
 if __name__ == '__main__':
     
@@ -41,10 +42,17 @@ if __name__ == '__main__':
     imgray = cv.cvtColor(src, cv.COLOR_BGR2GRAY)
     ret, thresh = cv.threshold(imgray, 0, 255, 0)
     contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-    cv.drawContours(src, contours, 0, (0, 0, 255), 3)
+    cv.drawContours(src, contours, -1, (0, 255, 0), 10)
+    contours_ = contours
     
+    imgray = cv.cvtColor(src, cv.COLOR_BGR2GRAY)
+    ret, thresh = cv.threshold(imgray, 0, 255, 0)
+    contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
     
-
-    #print(contours[0])
+    #cv.drawContours(src, contours_, -1, (0, 255, 0), 3)
+    cv.drawContours(src, contours, -1, (0, 0, 255), 5)
+    #out = np.zeros((len(src[0]), len(src), 3))
+    #cv.drawContours(out, contours, 0, (0, 0, 255), 3)
+    print(len(contours[0]))
     plt.imshow(src)
     plt.show()
