@@ -144,7 +144,8 @@ def get_zero_freza():
         z_go(-400, 4)
     print(test_coor_z_list)
     print(mean(test_coor_z_list))
-    print(coordinates[coor_z])
+    coordinates[coor_freza] = mean(test_coor_z_list)
+    print(coordinates)
     init_axis_z()
 
 def get_frames(id):
