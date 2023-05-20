@@ -135,7 +135,7 @@ def get_zero_freza():
     for i in range(5):
         f = 0
         while( f < 90 and coordinates[coor_z] < 6000000):
-            z_go(1, 0.5)
+            z_go(1, 0.25)
             f = 0
             for i in range(100):
                 f += GPIO.input(config.F_END)
