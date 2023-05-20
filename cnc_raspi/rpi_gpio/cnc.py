@@ -190,7 +190,7 @@ def stop_gpio():
 if __name__ == "__main__":
     GPIO.setmode(GPIO.BOARD)
     GPIO.setwarnings(True)
-    GPIO.setup([config.X_END, config.Y_END, config.Z_END, config.F_END], GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup([config.X_END, config.Y_END, config.Z_END], GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.setup(config.F_END, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     GPIO.setup([config.x_St, config.x_Dr, config.x_En], GPIO.OUT, initial=GPIO.LOW)
     GPIO.output(config.x_En, 1)
