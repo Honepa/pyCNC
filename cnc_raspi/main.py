@@ -21,6 +21,7 @@ if __name__ == '__main__':
             y -= 100
         for x, y in gcode:
             rpi_gpio.cnc.go_to_coor(x, y)
+            print(f"[INFO] : point {x} -- {y} has been scanned!", file=sys.stderr)
             rpi_gpio.cnc.get_zero_freza()
         #print(len(gcode))
         #print(gcode[0])
