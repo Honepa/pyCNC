@@ -3,7 +3,7 @@ import photo_test.find_work_area
 import cv2 as cv
 from time import time
 import sys
-
+import RPi.GPIO as GPIO
 cccc = list()
 
 if __name__ == '__main__':
