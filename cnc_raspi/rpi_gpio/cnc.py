@@ -49,10 +49,10 @@ class CNC:
         self.gpio.setup([self.config.X_END, self.config.Y_END, self.config.Z_END, self.config.F_END], self.gpio.IN, pull_up_down=self.gpio.PUD_UP)
     
         self.gpio.setup([self.config.x_St, self.config.x_Dr, self.config.x_En], self.gpio.OUT, initial=self.gpio.LOW)
-        self.gpio.output(config.x_En, 1)
+        self.gpio.output(self.config.x_En, 1)
     
         self.gpio.setup([self.config.y_St, self.config.y_Dr, self.config.y_En], self.gpio.OUT, initial=self.gpio.LOW)
-        self.gpio.output(config.y_En, 1)
+        self.gpio.output(self.config.y_En, 1)
     
         self.gpio.setup([self.config.z_St, self.config.z_Dr, self.config.z_En], self.gpio.OUT, initial=self.gpio.LOW)
         self.gpio.output(self.config.z_En, 1)
