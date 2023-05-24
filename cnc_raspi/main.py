@@ -1,4 +1,4 @@
-from rpi_gpio.cnc import NCN
+from rpi_gpio.cnc import CNC
 import photo_test.find_work_area
 import cv2 as cv
 from time import time
