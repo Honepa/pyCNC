@@ -126,7 +126,7 @@ class CNC:
         sleep((round(round((pow(speed_y * 800, -1) * pow(10, 5))) / 2)) * 10**-6) 
         self.coordinates[self.coor_y] += direction * 125
 
-    def __init_axis_z__():
+    def __init_axis_z__(self):
         count = 0
         while((self.gpio.input(self.config.Z_END)) and (count < 270)):
             self.z_go(-100, 1)
@@ -148,7 +148,7 @@ class CNC:
             self.z_step(d, speed_z)
         self.gpio.output(self.config.z_En, 1)
 
-    def z_step(direction, speed_z):
+    def z_step(self, direction, speed_z):
         d = 1 if direction == self.FRW else 0
         self.gpio.output(self.config.z_St, 0)
         self.gpio.output(self.config.z_Dr, d)
