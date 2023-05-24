@@ -2,76 +2,164 @@
 TODO:
 1) sum time by onece
 2) averenge END's for best init
+#sys.path.append('..')
+#import photo_test.find_work_area
 """
 import rpi_gpio.config
 from time import sleep, time
 import cv2 as cv
 import numpy as np
 import sys
-#sys.path.append('..')
-#import photo_test.find_work_area
 import RPi.GPIO as GPIO
 from statistics import mean, median
 
-find_coor = list()
+#config = rpi_gpio.config
+#FRW =  1
+#BCK = -1
+#coor_x     = 0
+#coor_y     = 1
+#coor_z     = 2#
+#coor_freza = 3
+#coordinates = [0, 0, 0, 0]
 
-config = rpi_gpio.config
-FRW =  1
-BCK = -1
-coor_x     = 0
-coor_y     = 1
-coor_z     = 2
-coor_freza = 3
-coordinates = [0, 0, 0, 0]
+class CNC:
+    def __init__(self, gpio):
+        self.gpio = gpio
+        self.coordinates = [0, 0, 0]
+        self.coor_x      = 0
+        self.coor_y      = 1
+        self.coor_z      = 2
+        self.config = rpi_gpio.config
+        self.__set_initial_values()
+        self.__init_gpio__()
+        self.__init_cnc__()
 
-def save_coor():
-    find_coor.append(coordinates)
+    def __set_initial_values(self):
+        self.FRW =  1
+        self.BCK = -1
+        self.coordinates = [0, 0, 0]
+        self.coor_x      = 0
+        self.coor_y      = 1
+        self.coor_z      = 2
+        self.config = rpi_gpio.config
 
-def x_step(direction, speed_x):
-    d = 1 if direction == FRW else 0
-    GPIO.output(config.x_St, 0)
-    GPIO.output(config.x_Dr, d)
-    sleep((round(round((pow(speed_x * 800, -1) * pow(10, 5))) / 2)) * 10**-6)
-    GPIO.output(config.x_St, 1)
-    GPIO.output(config.x_Dr, d)
-    sleep((round(round((pow(speed_x * 800, -1) * pow(10, 5))) / 2)) * 10**-6) 
-    coordinates[coor_x] += direction * 125
-
-def y_step(direction, speed_y):
-    d = 1 if direction == FRW else 0
-    GPIO.output(config.y_St, 0)
-    GPIO.output(config.y_Dr, d)
-    sleep((round(round((pow(speed_y * 800, -1) * pow(10, 5))) / 2)) * 10**-6)
-    GPIO.output(config.y_St, 1)
-    GPIO.output(config.y_Dr, d)
-    sleep((round(round((pow(speed_y * 800, -1) * pow(10, 5))) / 2)) * 10**-6) 
-    coordinates[coor_y] += direction * 125
-
-def z_step(direction, speed_z):
-    d = 1 if direction == FRW else 0
-    GPIO.output(config.z_St, 0)
-    GPIO.output(config.z_Dr, d)
-    sleep((round(round((pow(speed_z * 800, -1) * pow(10, 5))) / 2)) * 10**-6)
-    GPIO.output(config.z_St, 1)
-    GPIO.output(config.z_Dr, d)
-    sleep((round(round((pow(speed_z* 800, -1) * pow(10, 5))) / 2)) * 10**-6) 
-    coordinates[coor_z] += direction * 125
-
-def x_go(mm, speed_x = 1):
-    steps = mm * config.X_STEPS_MM
-    GPIO.output(config.x_En, 0)
-    d = FRW if steps > 0 else BCK
-    for i in range(abs(steps)):
-        x_step(d, speed_x)
-    GPIO.output(config.x_En, 1)
+    def __init_gpio__(self):
+        self.gpio.setmode(self.gpio.BOARD)
+        self.gpio.setwarnings(True)
+        self.gpio.setup([self.config.X_END, self.config.Y_END, self.config.Z_END, self.config.F_END], self.gpio.IN, pull_up_down=self.gpio.PUD_UP)
     
-def y_go(mm, speed_y = 1):
-    steps = mm * config.Y_STEPS_MM
-    GPIO.output(config.y_En, 0)
-    d = FRW if steps > 0 else BCK
-    for i in range(abs(steps)):
-        y_step(d, speed_y)
-    GPIO.output(config.y_En, 1)
+        self.gpio.setup([self.config.x_St, self.config.x_Dr, self.config.x_En], self.gpio.OUT, initial=self.gpio.LOW)
+        self.gpio.output(config.x_En, 1)
+    
+        self.gpio.setup([self.config.y_St, self.config.y_Dr, self.config.y_En], self.gpio.OUT, initial=self.gpio.LOW)
+        self.gpio.output(config.y_En, 1)
+    
+        self.gpio.setup([self.config.z_St, self.config.z_Dr, self.config.z_En], self.gpio.OUT, initial=self.gpio.LOW)
+        self.gpio.output(self.config.z_En, 1)
+
+    def __init_cnc__(self):
+        self.__init_axis_x__()
+        self.__init_axis_y__()
+        self.__init_axis_z__()
+
+    def __init_axis_x__(self):
+        count = 0
+        while((self.gpio.input(self.config.X_END)) and (count < 270)):
+            self.x_go(-100, 1)
+            count += 1
+        self.x_go(500, 1)
+        count = 0
+        while((self.gpio.input(self.config.X_END)) and (count < 500)):
+            self.x_go(-1, 0.05)
+            count += 1
+        while(not (self.gpio.input(self.config.X_END))):
+            self.x_go(1, 0.1)
+        self.coordinates[self.coor_x] = 0
+
+    def x_go(self, mm, speed_x = 1):
+        steps = mm * self.config.X_STEPS_MM
+        self.gpio.output(self.config.x_En, 0)
+        d = self.FRW if steps > 0 else self.BCK
+        for i in range(abs(steps)):
+            self.x_step(d, speed_x)
+        self.gpio.output(self.config.x_En, 1)
+
+    def x_step(self, direction, speed_x):
+        d = 1 if direction == self.FRW else 0
+        self.gpio.output(self.config.x_St, 0)
+        self.gpio.output(self.config.x_Dr, d)
+        sleep((round(round((pow(speed_x * 800, -1) * pow(10, 5))) / 2)) * 10**-6)
+        self.gpio.output(self.config.x_St, 1)
+        self.gpio.output(self.config.x_Dr, d)
+        sleep((round(round((pow(speed_x * 800, -1) * pow(10, 5))) / 2)) * 10**-6) 
+        self.coordinates[self.coor_x] += direction * 125
+
+    def init_axis_y(self):
+        count = 0
+        while((self.gpio.input(self.config.Y_END)) and (count < 270)):
+            self.y_go(-100, 1)
+            count += 1
+        self.y_go(500, 1)
+        count = 0
+        while((self.gpio.input(self.config.Y_END)) and (count < 500)):
+            self.y_go(-1, 0.05)
+            count += 1
+        while(not (self.gpio.input(self.config.Y_END))):
+            self.y_go(1, 0.1)
+        self.coordinates[self.coor_y] = 0
+
+    def y_go(self, mm, speed_y = 1):
+        steps = mm * self.config.Y_STEPS_MM
+        self.gpio.output(self.config.y_En, 0)
+        d = self.FRW if steps > 0 else self.BCK
+        for i in range(abs(steps)):
+            self.y_step(d, speed_y)
+        self.gpio.output(self.config.y_En, 1)
+
+    def y_step(self, direction, speed_y):
+        d = 1 if direction == self.FRW else 0
+        self.gpio.output(self.config.y_St, 0)
+        self.gpio.output(self.config.y_Dr, d)
+        sleep((round(round((pow(speed_y * 800, -1) * pow(10, 5))) / 2)) * 10**-6)
+        self.gpio.output(self.config.y_St, 1)
+        self.gpio.output(self.config.y_Dr, d)
+        sleep((round(round((pow(speed_y * 800, -1) * pow(10, 5))) / 2)) * 10**-6) 
+        self.coordinates[self.coor_y] += direction * 125
+
+    def init_axis_z():
+        count = 0
+        while((self.gpio.input(self.config.Z_END)) and (count < 270)):
+            self.z_go(-100, 1)
+            count += 1
+        self.z_go(500, 1)
+        count = 0
+        while((self.gpio.input(self.config.Z_END)) and (count < 500)):
+            self.z_go(-1, 0.05)
+            count += 1
+        while(not (self.gpio.input(self.config.Z_END))):
+            self.z_go(1, 0.1)
+        self.coordinates[self.coor_z] = 0
+
+    def z_go(self, mm, speed_z = 1):
+        steps = mm * self.config.Z_STEPS_MM
+        self.gpio.output(self.config.z_En, 0)
+        d = self.FRW if steps > 0 else self.BCK
+        for i in range(abs(steps)):
+            self.z_step(d, speed_z)
+        self.gpio.output(self.config.z_En, 1)
+
+    def z_step(direction, speed_z):
+        d = 1 if direction == self.FRW else 0
+        self.gpio.output(self.config.z_St, 0)
+        self.gpio.output(self.config.z_Dr, d)
+        sleep((round(round((pow(speed_z * 800, -1) * pow(10, 5))) / 2)) * 10**-6)
+        self.gpio.output(self.config.z_St, 1)
+        self.gpio.output(self.config.z_Dr, d)
+        sleep((round(round((pow(speed_z* 800, -1) * pow(10, 5))) / 2)) * 10**-6) 
+        self.coordinates[self.coor_z] += direction * 125
+
+    
+
     
 def z_go(mm, speed_z = 1):
     steps = mm * config.Z_STEPS_MM
@@ -81,53 +169,11 @@ def z_go(mm, speed_z = 1):
         z_step(d, speed_z)
     GPIO.output(config.z_En, 1)
 
-def init_axis_x():
-    count = 0
-    while((GPIO.input(config.X_END)) and (count < 270)):
-        x_go(-100, 1)
-        count += 1
-    x_go(500, 1)
-    count = 0
-    while((GPIO.input(config.X_END)) and (count < 500)):
-        x_go(-1, 0.05)
-        count += 1
-    while(not (GPIO.input(config.X_END))):
-        x_go(1, 0.1)
-    coordinates[coor_x] = 0
 
-def init_axis_y():
-    count = 0
-    while((GPIO.input(config.Y_END)) and (count < 270)):
-        y_go(-100, 1)
-        count += 1
-    y_go(500, 1)
-    count = 0
-    while((GPIO.input(config.Y_END)) and (count < 500)):
-        y_go(-1, 0.05)
-        count += 1
-    while(not (GPIO.input(config.Y_END))):
-        y_go(1, 0.1)
-    coordinates[coor_y] = 0
 
-def init_axis_z():
-    count = 0
-    while((GPIO.input(config.Z_END)) and (count < 270)):
-        z_go(-100, 1)
-        count += 1
-    z_go(500, 1)
-    count = 0
-    while((GPIO.input(config.Z_END)) and (count < 500)):
-        z_go(-1, 0.05)
-        count += 1
-    while(not (GPIO.input(config.Z_END))):
-        z_go(1, 0.1)
-    coordinates[coor_z] = 0
 
-def cnc_init():
-    init_axis_z()
-    init_axis_x()
-    init_axis_y()
-    
+
+
 def get_zero_freza():
     #init_axis_z()
     f = 0
