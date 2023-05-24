@@ -94,7 +94,7 @@ class CNC:
         sleep((round(round((pow(speed_x * 800, -1) * pow(10, 5))) / 2)) * 10**-6) 
         self.coordinates[self.coor_x] += direction * 125
 
-    def init_axis_y(self):
+    def __init_axis_y__(self):
         count = 0
         while((self.gpio.input(self.config.Y_END)) and (count < 270)):
             self.y_go(-100, 1)
@@ -126,7 +126,7 @@ class CNC:
         sleep((round(round((pow(speed_y * 800, -1) * pow(10, 5))) / 2)) * 10**-6) 
         self.coordinates[self.coor_y] += direction * 125
 
-    def init_axis_z():
+    def __init_axis_z__():
         count = 0
         while((self.gpio.input(self.config.Z_END)) and (count < 270)):
             self.z_go(-100, 1)
