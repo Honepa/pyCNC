@@ -32,7 +32,7 @@ class CNC:
         self.config = rpi_gpio.config
         self.__set_initial_values()
         self.__init_gpio__()
-        self.__init_cnc__()
+        #self.__init_cnc__()
 
     def __set_initial_values(self):
         self.FRW =  1
@@ -58,9 +58,9 @@ class CNC:
         self.gpio.output(self.config.z_En, 1)
 
     def __init_cnc__(self):
+        self.__init_axis_z__()
         self.__init_axis_x__()
         self.__init_axis_y__()
-        self.__init_axis_z__()
 
     def __init_axis_x__(self):
         count = 0
@@ -158,98 +158,56 @@ class CNC:
         sleep((round(round((pow(speed_z* 800, -1) * pow(10, 5))) / 2)) * 10**-6) 
         self.coordinates[self.coor_z] += direction * 125
 
-    
-
-    
-def z_go(mm, speed_z = 1):
-    steps = mm * config.Z_STEPS_MM
-    GPIO.output(config.z_En, 0)
-    d = FRW if steps > 0 else BCK
-    for i in range(abs(steps)):
-        z_step(d, speed_z)
-    GPIO.output(config.z_En, 1)
-
-
-
-
-
-
-def get_zero_freza():
-    #init_axis_z()
-    f = 0
-    test_coor_z_list = list()
-    for i in range(5):
+    def get_zero_freza(self):
+        #init_axis_z()
         f = 0
-        while( f < 90 and coordinates[coor_z] < 6000000):
-            z_go(1, 0.25)
+        test_coor_z_list = list()
+        for i in range(5):
             f = 0
-            for i in range(100):
-                f += GPIO.input(config.F_END)
+            while( f < 90 and self.coordinates[self.coor_z] < 6000000):
+                self.z_go(1, 0.25)
+                f = 0
+                for i in range(100):
+                    f += self.gpio.input(self.config.F_END)
             #print(f)
-        test_coor_z_list.append(coordinates[coor_z])
-        z_go(-400, 4)
-    #print(test_coor_z_list)
-    #print(mean(test_coor_z_list))
-    coordinates[coor_freza] = mean(test_coor_z_list)
-    print(f"{coordinates[coor_x]} {coordinates[coor_y]} {coordinates[coor_freza]}")
-    #init_axis_z()
-
-def get_frames(id):
-    cam = cv.VideoCapture(id)
-    assert cam.isOpened()
-    cam.set(3, 1920)
-    cam.set(4, 1080)
-    out = np.zeros((int(cam.get(4)*2),int(cam.get(3)*2), 3))
-    for i in range(10):
-        out[::2 ,  ::2] = cam.read()[1]
-        out[::2 , 1::2] = cam.read()[1]
-        out[1::2,  ::2] = cam.read()[1]
-        out[1::2, 1::2] = cam.read()[1]
-    return out
-
-def camera_screen(coordinates):
-    ret, frame = cv.VideoCapture(0).read()
-    screen_name = f'/tmp/cnc/{str(coordinates)}.jpeg'
-    cv.imwrite(screen_name, frame)
-    print("Screen saved in " + screen_name)
-
-def go_to_coor(x, y):
-    dx = x - int(coordinates[coor_x] / 1000)
-    dy = y - int(coordinates[coor_y] / 1000)
-    x_go(dx, 1)
-    y_go(dy, 1)
-
-def run_gpio():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setwarnings(True)
-    GPIO.setup([config.X_END, config.Y_END, config.Z_END, config.F_END], GPIO.IN, pull_up_down=GPIO.PUD_UP)
+            test_coor_z_list.append(self.coordinates[self.coor_z])
+            self.z_go(-400, 4)
+        #print(test_coor_z_list)
+        #print(mean(test_coor_z_list))
+        #init_axis_z()
+        return mean(test_coor_z_list)
     
-    GPIO.setup([config.x_St, config.x_Dr, config.x_En], GPIO.OUT, initial=GPIO.LOW)
-    GPIO.output(config.x_En, 1)
-    
-    GPIO.setup([config.y_St, config.y_Dr, config.y_En], GPIO.OUT, initial=GPIO.LOW)
-    GPIO.output(config.y_En, 1)
-    
-    GPIO.setup([config.z_St, config.z_Dr, config.z_En], GPIO.OUT, initial=GPIO.LOW)
-    GPIO.output(config.z_En, 1)
 
-def stop_gpio():
-    GPIO.cleanup()
+    def get_frames(self, id):
+        cam = cv.VideoCapture(id)
+        assert cam.isOpened()
+        cam.set(3, 1920)
+        cam.set(4, 1080)
+        out = np.zeros((int(cam.get(4)*2),int(cam.get(3)*2), 3))
+        for i in range(10):
+            out[::2 ,  ::2] = cam.read()[1]
+            out[::2 , 1::2] = cam.read()[1]
+            out[1::2,  ::2] = cam.read()[1]
+            out[1::2, 1::2] = cam.read()[1]
+        return out
+
+    def camera_screen(self, coordinates):
+        ret, frame = cv.VideoCapture(0).read()
+        screen_name = f'/tmp/cnc/{str(coordinates)}.jpeg'
+        cv.imwrite(screen_name, frame)
+        print("Screen saved in " + screen_name)
+
+    def go_to_coor(self, x, y):
+        dx = x - int(coordinates[coor_x] / 1000)
+        dy = y - int(coordinates[coor_y] / 1000)
+        self.x_go(dx, 1)
+        self.y_go(dy, 1)
+
+    def stop_gpio(self):
+        self.gpio.cleanup()
 
 if __name__ == "__main__":
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setwarnings(True)
-    GPIO.setup([config.X_END, config.Y_END, config.Z_END], GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(config.F_END, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-    GPIO.setup([config.x_St, config.x_Dr, config.x_En], GPIO.OUT, initial=GPIO.LOW)
-    GPIO.output(config.x_En, 1)
-    
-    GPIO.setup([config.y_St, config.y_Dr, config.y_En], GPIO.OUT, initial=GPIO.LOW)
-    GPIO.output(config.y_En, 1)
-    
-    GPIO.setup([config.z_St, config.z_Dr, config.z_En], GPIO.OUT, initial=GPIO.LOW)
-    GPIO.output(config.z_En, 1)
     
     #GPIO.setup(config.Freza, GPIO.OUT, initial=GPIO.LOW)
     #GPIO.output(config.Freza, 1)
@@ -269,12 +227,14 @@ if __name__ == "__main__":
     freza.stop()
     '''
     #zero cam one - 32.64 ; 0 ???31.93???
-    cnc_init()
+    cnc = CNC(GPIO)
+    cnc.cnc_init()
     
-    x_go(15696)
-    y_go(3076)
-    z_go(1600)
-    print(coordinates)
+    #cnc.x_go(15696)
+    #cnc.y_go(3076)
+    #cnc.z_go(1600)
+    #print(cnc.coordinates)
+    cnc.stop()
     #x_go(0, 1)
     #y_go(2672, 1)
     #z_go(1500, 1)
@@ -329,6 +289,6 @@ if __name__ == "__main__":
         img = get_frames(0)
         cv.imwrite(f'/tmp/out_{0}_{str(int(time())%1000)}.jpeg', img)
     '''
-    GPIO.cleanup()
+    #GPIO.cleanup()
 
 
