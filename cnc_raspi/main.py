@@ -7,10 +7,15 @@ import sys
 cccc = list()
 
 if __name__ == '__main__':
-    cnc = CNC(GPIO)
-    cnc.__init_cnc__()
-    cnc.stop_gpio()
-
+    try:
+        cnc = CNC(GPIO)
+        cnc.__init_cnc__()
+        cnc.stop_gpio()
+    except Exception as e:
+        print(e)
+        cnc.stop_gpio()
+    except KeyboardInterrupt:
+        cnc.stop_gpio()
     '''
     rpi_gpio.cnc.run_gpio()
     try:
@@ -94,8 +99,4 @@ if __name__ == '__main__':
             rpi_gpio.cnc.init_axis_z()
         print(rpi_gpio.cnc.find_coor)
         '''
-    except Exception as e:
-        print(e)
-        cnc.stop_gpio()
-    except KeyboardInterrupt:
-        cnc.stop_gpio()
+    
