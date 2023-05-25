@@ -64,7 +64,7 @@ if __name__ == '__main__':
                 coor_of_plate.append(cccc)
             else:
                 print(f"[ERROR:] error by corner in {corner}")
-            stanok.init_axis_z()
+            stanok.__init_axis_z__()
         print(coor_of_plate)
         stanok.stop_gpio()
     except Exception as e:

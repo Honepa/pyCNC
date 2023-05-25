@@ -75,11 +75,16 @@ class FWA:
         hsv = cv.cvtColor( img, cv.COLOR_BGR2HSV ) 
         thresh = cv.inRange( hsv, hsv_min, hsv_max )
         contours0, hierarche = cv.findContours(thresh.copy(), cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+        img_t = img
+        cv.drawContours(img_t, contours0, -1, (0, 0, 255), 3)
+        plt.imshow(img_t)
+        plt.show()
         for cnt in contours0:
             rect = cv.minAreaRect(cnt)
             box = cv.boxPoints(rect)
             box = np.int0(box)
             diagonal_ = self.get_diagonal(box) / 10.286
+            cv.drawContours(img_t,[box],0,(255,0,0),2)
             min_side_, max_side_ = self.det_min_max_side(box)
             if ((diagonal_ < req_diagonal + 15) and (diagonal_ > req_diagonal - 15)) and ((min_side_ < min_side + 10) and (min_side_ > min_side - 10)) and ((max_side_ < max_side + 10) and (max_side_ > max_side - 10)):
                 #print(diagonal_)
@@ -90,6 +95,8 @@ class FWA:
                 #print(box)
                 #print(convert_cam_0_to_mm(box))
                 #cv.imwrite('/home/duhanin/Изображения/cnc/cnc_test_1/test_ten/find_plate_'+str(img_path.split('/')[-1].split('.')[0]) + '_' + str(int(time())%1000) + '.jpg',img)
+        plt.imshow(img_t)
+        plt.show()
         return out_coor
 
     def get_vertical_and_horizontal(self, lines, img):
@@ -230,9 +237,10 @@ if __name__ == '__main__':
     #img_orig = cv.imread('/tmp/out_0_19039.jpeg')
     #out = correcting_perspective(img_orig)
     #cv.imwrite('/tmp/out_linear.jpg', out)
+    fwa = FWA()
     a = 55
     b = 65
-    out_pix_coor = find_board_by_cam_two('/tmp/out_linear.jpg', (a**2 + b**2)**0.5 ,55, 65)
-    coor_board_by_cam_two = convert_cam_0_to_mm(out_pix_coor)
+    out_pix_coor = fwa.find_board_by_cam_two('/tmp/out_linear.jpg', (a**2 + b**2)**0.5 ,55, 65)
+    coor_board_by_cam_two = fwa.convert_cam_0_to_mm(out_pix_coor)
     print(coor_board_by_cam_two)
     
