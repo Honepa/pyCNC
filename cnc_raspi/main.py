@@ -11,7 +11,14 @@ if __name__ == '__main__':
         stanok = CNC(GPIO)
         fwa = FWA()
         stanok.__init_cnc__()
-
+        coors = [[15693, 3076], [10278, 2762], [9880, 9228], [15304, 9541]]
+        for coor in coors:
+            stanok.go_to_coor(coor[0], coor[1])
+            stanok.z_go(1500, 1)
+            sleep(5)
+            stanok.__init_axis_z__()
+            
+        '''
         stanok.go_to_coor(0, 16000)
         img = stanok.get_frames(0)
         t = int(time()) % 100000
@@ -66,6 +73,7 @@ if __name__ == '__main__':
                 print(f"[ERROR:] error by corner in {corner}")
             stanok.__init_axis_z__()
         print(coor_of_plate)
+        '''
         stanok.stop_gpio()
     except Exception as e:
         print(e)
