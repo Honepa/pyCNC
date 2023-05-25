@@ -1,7 +1,7 @@
 from rpi_gpio.cnc import CNC
 from photo_test.find_work_area import FWA
 import cv2 as cv
-from time import time
+from time import time, sleep
 import sys
 import RPi.GPIO as GPIO
 cccc = list()
@@ -17,7 +17,7 @@ if __name__ == '__main__':
             stanok.z_go(1500, 1)
             sleep(5)
             stanok.__init_axis_z__()
-            
+
         '''
         stanok.go_to_coor(0, 16000)
         img = stanok.get_frames(0)
