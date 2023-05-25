@@ -15,9 +15,9 @@ if __name__ == '__main__':
         #[[coor[0] + 807, coor[1] - 4750] for coor in k]
         coors = [[15693, 3076], [10278, 2762], [9880, 9228], [15304, 9541]]
         x0, y0 = mean([x for x, y in coors]), mean([y for x, y in coors])
-        start_pt = [[x+1000, y-1000] for x, y in coors if x > x0 and y > y0][0]
+        start_pt = [[x + 900, y - 900] for x, y in coors if x < x0 and y > y0][0]
         stanok.go_to_coor(start_pt[0], start_pt[1])
-        print(stanok.get_zero_freza)
+        print(stanok.get_zero_freza())
         stanok.__init_axis_z__()
         '''
         stanok.go_to_coor(0, 16000)
