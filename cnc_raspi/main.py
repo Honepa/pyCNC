@@ -4,6 +4,7 @@ import cv2 as cv
 from time import time, sleep
 import sys
 import RPi.GPIO as GPIO
+from statistics import mean, median
 cccc = list()
 
 if __name__ == '__main__':
