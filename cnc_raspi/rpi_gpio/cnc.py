@@ -191,13 +191,13 @@ class CNC:
 
     def camera_screen(self, coordinates):
         ret, frame = cv.VideoCapture(0).read()
-        screen_name = f'/tmp/cnc/{str(coordinates)}.jpeg'
+        screen_name = f'/tmp/cnc/{str(self.coordinates)}.jpeg'
         cv.imwrite(screen_name, frame)
         print("Screen saved in " + screen_name)
 
     def go_to_coor(self, x, y):
-        dx = x - int(self.coordinates[coor_x] / 1000)
-        dy = y - int(self.coordinates[coor_y] / 1000)
+        dx = x - int(self.coordinates[self.coor_x] / 1000)
+        dy = y - int(self.coordinates[self.coor_y] / 1000)
         self.x_go(dx, 1)
         self.y_go(dy, 1)
 
