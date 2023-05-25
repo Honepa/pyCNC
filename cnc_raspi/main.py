@@ -1,5 +1,5 @@
 from rpi_gpio.cnc import CNC
-import photo_test.find_work_area
+from photo_test.find_work_area import FWA
 import cv2 as cv
 from time import time
 import sys
@@ -9,7 +9,63 @@ cccc = list()
 if __name__ == '__main__':
     try:
         cnc = CNC(GPIO)
+        fwa = FWA()
         cnc.__init_cnc__()
+
+        cnc.go_to_coor(0, 16000)
+        img = cnc.get_frames(0)
+        t = int(time()) % 100000
+        cv.imwrite(f'/tmp/out_{0}_{str(t)}.jpeg', img)
+        print(cnc.coordinates)
+
+        img_orig = cv.imread(f'/tmp/out_{0}_{str(t)}.jpeg')
+        out = fwa.correcting_perspective(img_orig)
+        cv.imwrite('/tmp/out_linear.jpg', out)
+        a = 55
+        b = 65
+        out_pix_coor = fwa.find_board_by_cam_two('/tmp/out_linear.jpg', (a**2 + b**2)**0.5 ,55, 65)
+        coor_board_by_cam_two = fwa.convert_cam_0_to_mm(out_pix_coor)
+        coor_for_cam_one = [[int(round(x, 2)*100) - 3264, int(round(y, 2)*100) + 2672] for [x, y] in coor_board_by_cam_two]
+        print(coor_for_cam_one)
+
+        coor_of_plate = list()
+        for corner in coor_for_cam_one:
+            cnc.go_to_coor(corner[0], corner[1])
+            cnc.z_go(1500, 1)
+            t = str(int(time())%100000)
+            img = cnc.get_frames(2)
+            cv.imwrite(f'/tmp/out_{2}_{t}.jpeg', img)
+            img = photo_test.find_work_area.rotate(f'/tmp/out_{2}_{t}.jpeg', angle = 1.8)
+            dx, dy, img = photo_test.find_work_area.find_corner_by_cam_one(img)
+            #rpi_gpio.cnc.init_axis_z()
+            dx = int(round(dx, 2) * 100)
+            dy = int(round(dy, 2) * 100)
+            #print(dx, dy)
+            count = 0
+            while ((count > 150) or ((dx**2 + dy**2)**0.5 > 10)):
+                cnc.x_go(-dx, 1)
+                cnc.y_go(dy, 1)
+                img = cnc.get_frames(2)
+                t = str(int(time())%100000)
+                cv.imwrite(f'/tmp/out_{2}_{t}.jpeg', img)
+                #print(f"[INFO:] img write in /tmp/out_{2}_{t}.jpeg")
+                img = fwa.rotate(f'/tmp/out_{2}_{t}.jpeg', angle = 1.8)
+                #img = cv.imread('/tmp/out_2_76735_.jpeg')
+                dx, dy, img = fwa.find_corner_by_cam_one(img)
+                #plt.imshow(img)
+                #plt.show()
+                dx = int(round(dx, 2) * 100)
+                dy = int(round(dy, 2) * 100)
+                #print(dx, dy)
+                count += 1
+                cccc = cnc.coordinates
+            if count < 150:
+                print(cnc.coordinates)
+                coor_of_plate.append(cccc)
+            else:
+                print(f"[ERROR:] error by corner in {corner}")
+            cnc.init_axis_z()
+        print(coor_of_plate)
         cnc.stop_gpio()
     except Exception as e:
         print(e)

@@ -58,9 +58,11 @@ class CNC:
         self.gpio.output(self.config.z_En, 1)
 
     def __init_cnc__(self):
+        print("[INFO:] INIT CNC")
         self.__init_axis_z__()
         self.__init_axis_x__()
         self.__init_axis_y__()
+        print("[INFO:] CNC is init")
 
     def __init_axis_x__(self):
         count = 0
