@@ -79,8 +79,8 @@ class FWA:
             rect = cv.minAreaRect(cnt)
             box = cv.boxPoints(rect)
             box = np.int0(box)
-            diagonal_ = get_diagonal(box) / 10.286
-            min_side_, max_side_ = det_min_max_side(box)
+            diagonal_ = self.get_diagonal(box) / 10.286
+            min_side_, max_side_ = self.det_min_max_side(box)
             if ((diagonal_ < req_diagonal + 15) and (diagonal_ > req_diagonal - 15)) and ((min_side_ < min_side + 10) and (min_side_ > min_side - 10)) and ((max_side_ < max_side + 10) and (max_side_ > max_side - 10)):
                 #print(diagonal_)
                 out_coor = box
@@ -142,7 +142,7 @@ class FWA:
                 del counter
         #print(distance)
         #print(max(distance, key = lambda x: x[1]))
-        p = get_p_vertical(v[max(distance, key = lambda x: x[1])[0]], v, max(distance, key = lambda x: x[1])[0])
+        #p = self.get_p_vertical(v[max(distance, key = lambda x: x[1])[0]], v, max(distance, key = lambda x: x[1])[0])
         return v[max(distance, key = lambda x: x[1])[0]]
 
     def get_best_horizontal(self, h):
@@ -178,13 +178,13 @@ class FWA:
         gray = cv.cvtColor(img,cv.COLOR_BGR2GRAY)
         edges = cv.Canny(gray,100,200,apertureSize = 3)
         lines = cv.HoughLinesP(edges,1,np.pi/180,2,minLineLength=30,maxLineGap=10)
-        vertical, horizontal, img = get_vertical_and_horizontal(lines, img)
+        vertical, horizontal, img = self.get_vertical_and_horizontal(lines, img)
     
         #print(vertical)
 
-        best_vertical = get_best_vertical(vertical)
+        best_vertical = self.get_best_vertical(vertical)
         #print(best_vertical)
-        best_horisontal = get_best_horizontal(horizontal)
+        best_horisontal = self.get_best_horizontal(horizontal)
         #print(best_horisontal)
 
         cv.line(img,(best_vertical[0],best_vertical[1]),(best_vertical[2],best_vertical[3]),(0,0,255),2)
