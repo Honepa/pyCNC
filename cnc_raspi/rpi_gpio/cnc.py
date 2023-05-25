@@ -196,8 +196,8 @@ class CNC:
         print("Screen saved in " + screen_name)
 
     def go_to_coor(self, x, y):
-        dx = x - int(coordinates[coor_x] / 1000)
-        dy = y - int(coordinates[coor_y] / 1000)
+        dx = x - int(self.coordinates[coor_x] / 1000)
+        dy = y - int(self.coordinates[coor_y] / 1000)
         self.x_go(dx, 1)
         self.y_go(dy, 1)
 
