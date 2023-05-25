@@ -25,10 +25,6 @@ from statistics import mean, median
 class CNC:
     def __init__(self, gpio):
         self.gpio = gpio
-        self.coordinates = [0, 0, 0]
-        self.coor_x      = 0
-        self.coor_y      = 1
-        self.coor_z      = 2
         self.config = rpi_gpio.config
         self.__set_initial_values()
         self.__init_gpio__()
