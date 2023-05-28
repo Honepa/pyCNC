@@ -76,27 +76,27 @@ class FWA:
         thresh = cv.inRange( hsv, hsv_min, hsv_max )
         contours0, hierarche = cv.findContours(thresh.copy(), cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
         img_t = img
-        cv.drawContours(img_t, contours0, -1, (0, 0, 255), 3)
-        plt.imshow(img_t)
-        plt.show()
+        #cv.drawContours(img_t, contours0, -1, (0, 0, 255), 3)
+        #plt.imshow(img_t)
+        #plt.show()
         for cnt in contours0:
             rect = cv.minAreaRect(cnt)
             box = cv.boxPoints(rect)
             box = np.int0(box)
             diagonal_ = self.get_diagonal(box) / 10.286
-            cv.drawContours(img_t,[box],0,(255,0,0),2)
+            #cv.drawContours(img_t,[box],0,(255,0,0),2)
             min_side_, max_side_ = self.det_min_max_side(box)
             if ((diagonal_ < req_diagonal + 15) and (diagonal_ > req_diagonal - 15)) and ((min_side_ < min_side + 10) and (min_side_ > min_side - 10)) and ((max_side_ < max_side + 10) and (max_side_ > max_side - 10)):
                 #print(diagonal_)
                 out_coor = box
-                #cv.drawContours(img,[box],0,(255,0,0),2) # рисуем прямоугольник
+                cv.drawContours(img,[box],0,(255,0,0),12) # рисуем прямоугольник
                 #plt.imshow(img),plt.show()
                 #print(img_path)
                 #print(box)
                 #print(convert_cam_0_to_mm(box))
-                #cv.imwrite('/home/duhanin/Изображения/cnc/cnc_test_1/test_ten/find_plate_'+str(img_path.split('/')[-1].split('.')[0]) + '_' + str(int(time())%1000) + '.jpg',img)
-        plt.imshow(img_t)
-        plt.show()
+                cv.imwrite('/home/duhanin/Изображения/cnc/cnc_test_1/test_ten/find_plate_'+str(img_path.split('/')[-1].split('.')[0]) + '_' + str(int(time())%1000) + '.jpg',img)
+        #plt.imshow(img_t)
+        #plt.show()
         return out_coor
 
     def get_vertical_and_horizontal(self, lines, img):
@@ -105,18 +105,18 @@ class FWA:
         for line in lines:
             x1,y1,x2,y2 = line[0]
             if x1 == x2 :
-                cv.line(img,(x1,y1),(x2,y2),(128,0,128),2)
+                cv.line(img,(x1,y1),(x2,y2),(128,0,128),12)
                 vertical.append((x1, y1, x2, y2))
             elif y1 == y2 :
-                cv.line(img,(x1,y1),(x2,y2),(255,0,0),2)
+                cv.line(img,(x1,y1),(x2,y2),(255,0,0),12)
                 horizontal.append((x1, y1, x2, y2))
             else:
                 z = np.polyfit([x1, x2], [y1, y2], 1)
                 if abs(z[0]) <= 1:
-                    cv.line(img,(x1,y1),(x2,y2),(255,0,0),2)
+                    cv.line(img,(x1,y1),(x2,y2),(255,0,0),12)
                     horizontal.append((x1, y1, x2, y2))
                 elif abs(z[0]) > 1 :
-                    cv.line(img,(x1,y1),(x2,y2),(128,0,128),2)
+                    cv.line(img,(x1,y1),(x2,y2),(128,0,128),12)
                     vertical.append((x1, y1, x2, y2))
         return vertical, horizontal, img
 
@@ -194,8 +194,8 @@ class FWA:
         best_horisontal = self.get_best_horizontal(horizontal)
         #print(best_horisontal)
 
-        cv.line(img,(best_vertical[0],best_vertical[1]),(best_vertical[2],best_vertical[3]),(0,0,255),2)
-        cv.line(img,(best_horisontal[0],best_horisontal[1]),(best_horisontal[2],best_horisontal[3]),(255,255,0),2)
+        cv.line(img,(best_vertical[0],best_vertical[1]),(best_vertical[2],best_vertical[3]),(0,0,255),12)
+        cv.line(img,(best_horisontal[0],best_horisontal[1]),(best_horisontal[2],best_horisontal[3]),(255,255,0),12)
 
         line1 = Line(Point(best_vertical[0], best_vertical[1]), Point(best_vertical[2], best_vertical[3]))
         line2 = Line(Point(best_horisontal[0], best_horisontal[1]), Point(best_horisontal[2], best_horisontal[3]))
@@ -209,8 +209,8 @@ class FWA:
         else:
             y_intersection = int(str(intersect[0][1]))
         #print(x_intersection, y_intersection)
-        cv.circle(img, (int(x_intersection),int(y_intersection)), radius=2, color=(255, 0, 255), thickness=-1)
-        cv.circle(img, (640,480), radius=2, color=(255, 255, 255), thickness=-1)
+        cv.circle(img, (int(x_intersection),int(y_intersection)), radius=12, color=(255, 0, 255), thickness=-1)
+        cv.circle(img, (640,480), radius=12, color=(255, 255, 255), thickness=-1)
         #plt.imshow(img)
         #plt.show()
         return (640 - x_intersection)/34.5 , (480 - y_intersection)/35, img
@@ -227,20 +227,23 @@ if __name__ == '__main__':
         dx = int(round(dx, 2) * 100)
         dy = int(round(dy, 2) * 100)
         print(dx, dy)
-    #img = rotate('/tmp/out_2_4343.jpeg', angle = 1.8)
+    '''
+    fwa = FWA()
+    #img = fwa.rotate('/tmp/out_2_4343.jpeg', angle = 1.8)
+    #dx, dy, img = find_corner_by_cam_one('/tmp/out_2_815.jpeg')
     #plt.imshow(img)
     #plt.show()
-        cv.imwrite(f'/tmp/test_cnc_out/out_corner_{img_path}', img)
-    #dx, dy = find_corner_by_cam_one('/tmp/out_2_815.jpeg')
+    #cv.imwrite(f'/tmp/test_cnc_out/out_corner_{img_path}', img)
     #print(dx, dy)
     '''
     #img_orig = cv.imread('/tmp/out_0_19039.jpeg')
     #out = correcting_perspective(img_orig)
     #cv.imwrite('/tmp/out_linear.jpg', out)
     fwa = FWA()
-    a = 55
-    b = 65
-    out_pix_coor = fwa.find_board_by_cam_two('/tmp/out_linear.jpg', (a**2 + b**2)**0.5 ,55, 65)
+    a = 140
+    b = 190
+    out_pix_coor = fwa.find_board_by_cam_two('/tmp/out_linear.jpg', (a**2 + b**2)**0.5 ,140, 190)
     coor_board_by_cam_two = fwa.convert_cam_0_to_mm(out_pix_coor)
     print(coor_board_by_cam_two)
+    '''
     
