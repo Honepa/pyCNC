@@ -1,0 +1,20 @@
+digraph "round-table" {
+    BP    [label="Блок Питания", shape=box]
+    Rpi   [label="Raspberry pi", shape=box]
+    Xolod [label="Система охлаждения", shape=box]
+    CNC   [label="CNC Shield", shape=box]
+    Cam   [label="Камеры", shape=box]
+    Fr    [label="Двигатель навесного оборудования", shape=box]
+    Knok   [label="Концевые датчики", shape=box]
+    Shag   [label="Шаговый двигатель", shape=box]
+    
+    BP -> Rpi [label="5v"]
+    BP -> CNC [label="12v, 24v"]
+
+    Rpi -> Cam [label="USB"]
+    Rpi -> CNC [label="GPIO"]
+    CNC -> Fr 
+    CNC -> Shag 
+    CNC -> Knok 
+    BP -> Xolod [label="12v"]
+}
