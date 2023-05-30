@@ -1,4 +1,5 @@
 digraph "round-table" {
+    A [label="Начало"]
     Start    [label="Инициализация Станка", shape=box]
     Find   [label="Идентификация заготовки", shape=box]
     Preob [label="Преобразования схемы печатной платы в набор команд для станка", shape=box]
@@ -8,7 +9,8 @@ digraph "round-table" {
     find_drl    [label="Определение нуля сверла и сверление согласно набору команд", shape=box]
     povorot   [label="Переворот заготовки и повторение предыдущих 5-ти команд", shape=box]
     END   [label="Выдача результата работы пользователю", shape=box]
-    
+    L [label="Конец"]
+    A -> Start
     Start -> Find 
     Find -> Preob 
 
@@ -18,4 +20,5 @@ digraph "round-table" {
     freza    -> find_drl 
     find_drl -> povorot 
     povorot -> END  
+    END -> L
 }

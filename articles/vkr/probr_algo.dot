@@ -1,0 +1,19 @@
+digraph "round-table" {
+    A [label="Начало"]
+    Start    [label="Парсинг .drl файла", shape=box]
+    K_END   [label="По данным .drl файла закрашивание будущих отверстий под компоненты платы", shape=box]
+    OT [label="Определение контуров платы", shape=box]
+    Snova   [label="Перевод координат контуров платы из пикселей в миллиметры", shape=box]
+    Re   [label="Перемещение координат контуров платы в найденную координату начала заготовки", shape=box]
+    Vrot   [label="Поворот координат контуров платы согласно найденному углу смещения платы", shape=box]
+    L [label="Конец"]
+    A -> Start
+    Start -> K_END 
+    K_END -> OT 
+
+    OT -> Snova 
+    Snova -> Re 
+    Re -> Vrot
+    Vrot -> L
+
+}
