@@ -1,0 +1,21 @@
+digraph "round-table" {
+    Start    [label="Инициализация Станка", shape=box]
+    Find   [label="Идентификация заготовки", shape=box]
+    Preob [label="Преобразования схемы печатной платы в набор команд для станка", shape=box]
+    Visio   [label="Визуализация результата выполнения команд пользователю", shape=box]
+    find_zero   [label="Определение наклона заготовки по оси Z", shape=box]
+    freza      [label="Поиск нуля фрезы и фрезировка согласно набору команд", shape=box]
+    find_drl    [label="Определение нуля сверла и сверление согласно набору команд", shape=box]
+    povorot   [label="Переворот заготовки и повторение предыдущих 5-ти команд", shape=box]
+    END   [label="Выдача результата работы пользователю", shape=box]
+    
+    Start -> Find 
+    Find -> Preob 
+
+    Preob -> Visio 
+    Visio -> find_zero 
+    find_zero -> freza
+    freza    -> find_drl 
+    find_drl -> povorot 
+    povorot -> END  
+}
