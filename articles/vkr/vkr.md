@@ -386,6 +386,29 @@ CNC-станок для создания печатных плат — это с
 #### **3.3.1. Тестирование системы позиционирования cnc станка**
 
 ```python
+orig = cv.imread("orig.jpg", cv.IMREAD_GRAYSCALE)
+ret, thresh1 = cv.threshold(orig, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
+
+img = cv.imread("img.jpg", cv.IMREAD_GRAYSCALE)
+ret, thresh1 = cv.threshold(img, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
+
+out = img - orig
+
+plt.subplot(1, 3, 1), plt.imshow(orig, 'gray'), plt.title("orig")
+plt.subplot(1, 3, 2), plt.imshow(img, 'gray'), plt.title("img")
+plt.subplot(1, 3, 3), plt.imshow(out, 'gray'), plt.title("img - orig")
+plt.show()
+```
+
+![Тестирование алгоритма определения качества позиционирования на подобных фотографиях](img/331_test_good.png "Тестирование алгоритма определения качества позиционирования на подобных фотографиях")
+
+Рисунок . Тестирование алгоритма определения качества позиционирования на подобных фотографиях
+
+![Тестирование алгоритма определения качества позиционирования на различных фотографиях](img/331_test_bad.png "Тестирование алгоритма определения качества позиционирования на различных фотографиях")
+
+Рисунок . Тестирование алгоритма определения качества позиционирования на различных фотографиях
+
+```python
 img_paths = glob("/tmp/test_cnc_1/*")
 
 thresholds = list()
