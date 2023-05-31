@@ -10,15 +10,22 @@ cccc = list()
 if __name__ == '__main__':
     try:
         stanok = CNC(GPIO)
-        fwa = FWA()
-        stanok.__init_cnc__()
+        for i in range(11):
+            stanok.__init_cnc__()
+            stanok.go_to_coor(0, 16000)
+            img = stanok.get_frames(0)
+            t = int(time()) % 100000
+            cv.imwrite(f'/tmp/out_{0}_{str(t)}.jpeg', img)
+            
+        #fwa = FWA()
+        #stanok.__init_cnc__()
         #[[coor[0] + 807, coor[1] - 4750] for coor in k]
-        coors = [[15693, 3076], [10278, 2762], [9880, 9228], [15304, 9541]]
-        x0, y0 = mean([x for x, y in coors]), mean([y for x, y in coors])
-        start_pt = [[x + 900, y - 900] for x, y in coors if x < x0 and y > y0][0]
-        stanok.go_to_coor(start_pt[0], start_pt[1])
-        print(stanok.get_zero_freza())
-        stanok.__init_axis_z__()
+        #coors = [[15693, 3076], [10278, 2762], [9880, 9228], [15304, 9541]]
+        #x0, y0 = mean([x for x, y in coors]), mean([y for x, y in coors])
+        #start_pt = [[x + 900, y - 900] for x, y in coors if x < x0 and y > y0][0]
+        #stanok.go_to_coor(start_pt[0], start_pt[1])
+        #print(stanok.get_zero_freza())
+        #stanok.__init_axis_z__()
         '''
         stanok.go_to_coor(0, 16000)
         img = stanok.get_frames(0)
