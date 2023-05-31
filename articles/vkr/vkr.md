@@ -385,9 +385,30 @@ CNC-станок для создания печатных плат — это с
 
 #### **3.3.1. Тестирование системы позиционирования cnc станка**
 
+```python
+img_paths = glob("/tmp/test_cnc_1/*")
+
+thresholds = list()
+for img_path in img_paths:
+	img_c = cv.imread(img_path, cv.IMREAD_GRAYSCALE)
+    ret, thresh = cv.threshold(img_c, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
+    thresholds.append(thresh)
+
+outs = list()
+for i in range(1, len(thrs)):
+    out = thrs[i] - thrs[0]
+    outs.append(np.sum(out == 255))
+
+print([round((out / 5841798) * 100, 2) for out in outs])
+
+Out[76]: [0.17, 0.42, 0.87, 0.24, 0.22, 0.28, 0.27, 0.32, 0.22, 0.23]
+```
+
+
+
 #### **3.3.2. Тестирование системы идентификации заготовки печатной платы**
 
-### **Выводы по главе 2**
+### **Выводы по главе 3**
 
 ## **ЗАКЛЮЧЕНИЕ**
 
