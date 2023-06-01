@@ -64,7 +64,7 @@ if __name__ == '__main__':
             if count > 150:
                 print(f"[ERROR:] error by corner in {corner}")
             stanok.__init_axis_z__()
-            coor_of_plate += stanok.coordinates
+            coor_of_plate += [stanok.coordinates]
         print(coor_of_plate)
 
         #fwa = FWA()
