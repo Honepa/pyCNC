@@ -282,6 +282,30 @@ GPIO -
 
 ### **3.2. Реализация программного обеспечения  программно-аппартаной системой управления CNC станка**
 
+
+Листинг . Функция инициализации портов GPIO Raspberry Pi.
+```python
+    def __init_gpio__(self):
+        self.gpio.setmode(self.gpio.BOARD)
+        self.gpio.setwarnings(True)
+        self.gpio.setup([self.config.X_END, self.config.Y_END, self.config.Z_END, self.config.F_END], self.gpio.IN, pull_up_down=self.gpio.PUD_UP)
+    
+        self.gpio.setup([self.config.x_St, self.config.x_Dr, self.config.x_En], self.gpio.OUT, initial=self.gpio.LOW)
+        self.gpio.output(self.config.x_En, 1)
+    
+        self.gpio.setup([self.config.y_St, self.config.y_Dr, self.config.y_En], self.gpio.OUT, initial=self.gpio.LOW)
+        self.gpio.output(self.config.y_En, 1)
+    
+        self.gpio.setup([self.config.z_St, self.config.z_Dr, self.config.z_En], self.gpio.OUT, initial=self.gpio.LOW)
+        self.gpio.output(self.config.z_En, 1)
+
+        FREQUENCY = 100
+    
+        self.gpio.setup(self.config.Freza, self.gpio.OUT)
+        self.freza = self.gpio.PWM(self.config.Freza, FREQUENCY)
+```
+
+
 Листинг . Функции управления перемещения шаговым двигателем по оси X.
 ```python
 def x_go(self, mm, speed_x = 1):
@@ -303,28 +327,304 @@ def x_step(self, direction, speed_x):
     self.coordinates[self.coor_x] += direction * 125
 ```
 
+Листинг . Функция инициализации по оси X.
 ```python
+def __init_axis_x__(self):
+        count = 0
+        while((self.gpio.input(self.config.X_END)) and (count < 270)):
+            self.x_go(-100, 1)
+            count += 1
+        self.x_go(500, 1)
+        count = 0
+        while((self.gpio.input(self.config.X_END)) and (count < 500)):
+            self.x_go(-1, 0.05)
+            count += 1
+        while(not (self.gpio.input(self.config.X_END))):
+            self.x_go(1, 0.1)
+        self.coordinates[self.coor_x] = 0
+```
+
+Листинг . Функция получения какого-то там изображения с нужной камеры.
+```python
+    def get_frames(self, id):
+        cam = cv.VideoCapture(id)
+        assert cam.isOpened()
+        cam.set(3, 1920)
+        cam.set(4, 1080)
+        out = np.zeros((int(cam.get(4)*2),int(cam.get(3)*2), 3))
+        for i in range(10):
+            out[::2 ,  ::2] = cam.read()[1]
+            out[::2 , 1::2] = cam.read()[1]
+            out[1::2,  ::2] = cam.read()[1]
+            out[1::2, 1::2] = cam.read()[1]
+        return out
+```
+
+Листинг . Функция испарвления перспективы с основной камеры.
+```python
+    def correcting_perspective(self, img):
+        pt_A = [212,  284 ] 
+        pt_B = [212,  2097] 
+        pt_C = [3294, 2033]
+        pt_D = [3208, 207 ]
+
+        input_pts = np.float32([pt_A, pt_B, pt_C, pt_D])
+        output_pts = np.float32([[210, 204],
+                                [210, 2097], 
+                                [3296, 2097], 
+                                [3296, 204]])
+        M = cv.getPerspectiveTransform(input_pts,output_pts)
+        out = cv.warpPerspective(img,M,(img.shape[1],img.shape[0]),flags=cv.INTER_LINEAR)
+        return out[204:2097, 210:3296]
 ```
 
 
+Листинг . Функция определения координат углов контура заготовки по Основной камере.
 ```python
+    def find_board_by_cam_two(self, img_path, req_diagonal, min_side, max_side):
+        out_coor = list()
+        hsv_min = np.array((0, 54, 5), np.uint8)
+        hsv_max = np.array((187, 255, 253), np.uint8)
+
+        img = cv.imread(img_path)
+
+        hsv = cv.cvtColor( img, cv.COLOR_BGR2HSV ) 
+        thresh = cv.inRange( hsv, hsv_min, hsv_max )
+        contours0, hierarche = cv.findContours(thresh.copy(), cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+        img_t = img
+        #cv.drawContours(img_t, contours0, -1, (0, 0, 255), 3)
+        #plt.imshow(img_t)
+        #plt.show()
+        for cnt in contours0:
+            rect = cv.minAreaRect(cnt)
+            box = cv.boxPoints(rect)
+            box = np.int0(box)
+            diagonal_ = self.get_diagonal(box) / 10.286
+            #cv.drawContours(img_t,[box],0,(255,0,0),2)
+            min_side_, max_side_ = self.det_min_max_side(box)
+            if ((diagonal_ < req_diagonal + 15) and (diagonal_ > req_diagonal - 15)) and ((min_side_ < min_side + 10) and (min_side_ > min_side - 10)) and ((max_side_ < max_side + 10) and (max_side_ > max_side - 10)):
+                #print(diagonal_)
+                out_coor = box
+                cv.drawContours(img,[box],0,(255,0,0),12) # рисуем прямоугольник
+                #plt.imshow(img),plt.show()
+                #print(img_path)
+                #print(box)
+                #print(convert_cam_0_to_mm(box))
+                cv.imwrite('/home/duhanin/Изображения/cnc/cnc_test_1/test_ten/find_plate_'+str(img_path.split('/')[-1].split('.')[0]) + '_' + str(int(time())%1000) + '.jpg',img)
+        #plt.imshow(img_t)
+        #plt.show()
+        return out_coor
+```
+
+Листинг . Функция определения координаты угла по Уточняющей камере
+```python
+def find_corner_by_cam_one(self, img):
+        img = img
+        gray = cv.cvtColor(img,cv.COLOR_BGR2GRAY)
+        edges = cv.Canny(gray,100,200,apertureSize = 3)
+        lines = cv.HoughLinesP(edges,1,np.pi/180,2,minLineLength=30,maxLineGap=10)
+        vertical, horizontal, img = self.get_vertical_and_horizontal(lines, img)
+    
+        #print(vertical)
+
+        best_vertical = self.get_best_vertical(vertical)
+        #print(best_vertical)
+        best_horisontal = self.get_best_horizontal(horizontal)
+        #print(best_horisontal)
+
+        cv.line(img,(best_vertical[0],best_vertical[1]),(best_vertical[2],best_vertical[3]),(0,0,255),12)
+        cv.line(img,(best_horisontal[0],best_horisontal[1]),(best_horisontal[2],best_horisontal[3]),(255,255,0),12)
+
+        line1 = Line(Point(best_vertical[0], best_vertical[1]), Point(best_vertical[2], best_vertical[3]))
+        line2 = Line(Point(best_horisontal[0], best_horisontal[1]), Point(best_horisontal[2], best_horisontal[3]))
+        intersect = line1.intersection(line2)
+        if len(str(intersect[0][0]).split('/')) > 1:
+            x_intersection = int(str(intersect[0][0]).split('/')[0]) / int(str(intersect[0][0]).split('/')[1])
+        else:
+            x_intersection = int(str(intersect[0][0]))
+        if len(str(intersect[0][1]).split('/')) > 1:
+            y_intersection = int(str(intersect[0][1]).split('/')[0]) / int(str(intersect[0][1]).split('/')[1])
+        else:
+            y_intersection = int(str(intersect[0][1]))
+        #print(x_intersection, y_intersection)
+        cv.circle(img, (int(x_intersection),int(y_intersection)), radius=12, color=(255, 0, 255), thickness=-1)
+        cv.circle(img, (640,480), radius=12, color=(255, 255, 255), thickness=-1)
+        #plt.imshow(img)
+        #plt.show()
+        return (640 - x_intersection)/34.5 , (480 - y_intersection)/35, img
+```
+Листинг . Программа определения координат углов контура заготовки печатной платы.
+```python
+        out_pix_coor = fwa.find_board_by_cam_two('/tmp/out_linear.jpg', (a**2 + b**2)**0.5 ,55, 65)
+        coor_board_by_cam_two = fwa.convert_cam_0_to_mm(out_pix_coor)
+        coor_for_cam_one = [[int(round(x, 2)*100) - 3264, int(round(y, 2)*100) + 2672] for [x, y] in coor_board_by_cam_two]
+        print(coor_for_cam_one)
+
+        coor_of_plate = list()
+        for corner in coor_for_cam_one:
+            stanok.go_to_coor(corner[0], corner[1])
+            stanok.z_go(1500, 1)
+            t = str(int(time())%100000)
+            img = stanok.get_frames(2)
+            cv.imwrite(f'/tmp/out_{2}_{t}.jpeg', img)
+            img = fwa.rotate(f'/tmp/out_{2}_{t}.jpeg', angle = 1.8)
+            dx, dy, img = fwa.find_corner_by_cam_one(img)
+            #stanok.init_axis_z()
+            dx = int(round(dx, 2) * 100)
+            dy = int(round(dy, 2) * 100)
+            #print(dx, dy)
+            count = 0
+            while ((count > 150) or ((dx**2 + dy**2)**0.5 > 10)):
+                stanok.x_go(-dx, 1)
+                stanok.y_go(dy, 1)
+                img = stanok.get_frames(2)
+                t = str(int(time())%100000)
+                cv.imwrite(f'/tmp/out_{2}_{t}.jpeg', img)
+                #print(f"[INFO:] img write in /tmp/out_{2}_{t}.jpeg")
+                img = fwa.rotate(f'/tmp/out_{2}_{t}.jpeg', angle = 1.8)
+                #img = cv.imread('/tmp/out_2_76735_.jpeg')
+                dx, dy, img = fwa.find_corner_by_cam_one(img)
+                #plt.imshow(img)
+                #plt.show()
+                dx = int(round(dx, 2) * 100)
+                dy = int(round(dy, 2) * 100)
+                #print(dx, dy)
+                count += 1
+            print(stanok.coordinates)
+            if count > 150:
+                print(f"[ERROR:] error by corner in {corner}")
+            stanok.__init_axis_z__()
+            coor_of_plate += [stanok.coordinates]
+        print(coor_of_plate)
 ```
 
 
+Листинг . Код разбора файла сверловки печатной платы.
 ```python
+	f = open('/home/duhanin/Документы/CNC станок (ВКР)/test_plate.drl', 'r')
+    file = list()
+    for line in f:
+        file.append(line)
+    f.close()
+
+    drills = file[file.index('METRIC\n') + 1 : file.index('%\n', file.index('METRIC\n'))]
+
+    dril_name_mm = list()
+    for dril in drills:
+        dril_name_mm.append([dril.split('C')[0], dril.split('C')[1].split('\n')[0]])
+    print(dril_name_mm)
+    
+    drill = list()
+
+    for i in range(len(dril_name_mm)):
+        if not (i == len(dril_name_mm) - 1):
+            coors = file[file.index(f'{dril_name_mm[i][0]}\n') + 1:file.index(f'{dril_name_mm[i + 1][0]}\n')]
+            for coor in coors:
+                drill.append([float(dril_name_mm[i][1]), int(coor.split('Y-')[0].split('X')[-1]) ,int(coor.split('Y-')[-1])])
+        else:
+            coors = file[file.index(f'{dril_name_mm[i][0]}\n') + 1:file.index('M30\n')]
+            for coor in coors:
+                drill.append([float(dril_name_mm[i][1]), int(coor.split('Y-')[0].split('X')[-1]) ,int(coor.split('Y-')[-1])])
+    print(drill)
+    for_draw = [[int(point[0] * 40), int((point[1] * 47.25)/100),int((point[2]*47.25)/100)] for point in drill]
+    print(for_draw)
+    src = cv.imread("/home/duhanin/Документы/CNC станок (ВКР)/test_plate.bmp")
+
+    for point in for_draw:
+        print(point)
+        cv.circle(src, (point[1], point[2]), int(point[0]/200), (0, 255, 0), point[0]*2)
+    #plt.imshow(src)
+    #plt.show()
 ```
 
+Листинг . Код закрашивания отверстий под компоненты на схеме печатной платы.
 ```python
+	imgray = cv.cvtColor(src, cv.COLOR_BGR2GRAY)
+    ret, thresh = cv.threshold(imgray, 0, 255, 0)
+    contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+    cv.drawContours(src, contours, -1, (0, 255, 0), 10)
+    contours_ = contours
+    
+    imgray = cv.cvtColor(src, cv.COLOR_BGR2GRAY)
+    ret, thresh = cv.threshold(imgray, 0, 255, 0)
+    contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+    
+    #cv.drawContours(src, contours_, -1, (0, 255, 0), 3)
+    cv.drawContours(src, contours, -1, (0, 0, 255), 5)
+    #out = np.zeros((len(src[0]), len(src), 3))
+    #cv.drawContours(out, contours, 0, (0, 0, 255), 3)
+    print(len(contours[0]))
+    plt.imshow(src)
+    plt.show()
 ```
 
-
+Листинг . Функция перемещения инструмента станка в заданные координаты по осям X и Y.
 ```python
+	def go_to_coor(self, x, y):
+        dx = x - int(self.coordinates[self.coor_x] / 1000)
+        dy = y - int(self.coordinates[self.coor_y] / 1000)
+        self.x_go(dx, 1)
+        self.y_go(dy, 1)
 ```
 
+Листинг . Функция определения высоты рабочего инструмента.
 ```python
+    def get_zero_freza(self):
+        #init_axis_z()
+        f = 0
+        test_coor_z_list = list()
+        for i in range(5):
+            f = 0
+            while( f < 90 and self.coordinates[self.coor_z] < 6000000):
+                self.z_go(1, 0.25)
+                f = 0
+                for i in range(100):
+                    f += self.gpio.input(self.config.F_END)
+            #print(f)
+            test_coor_z_list.append(self.coordinates[self.coor_z])
+            self.z_go(-400, 4)
+        #print(test_coor_z_list)
+        #print(mean(test_coor_z_list))
+        #init_axis_z()
+        return mean(test_coor_z_list)
 ```
 
+Листинг . Функция поворота изображения.
 ```python
+    def rotate(self, img_path, angle):
+        img = cv.imread(img_path)
+        rows,cols = img.shape[0], img.shape[1]
+        M = cv.getRotationMatrix2D(((cols-1)/2.0,(rows-1)/2.0),angle,1)
+        dst = cv.warpAffine(img,M,(cols,rows))
+        #plt.imshow(dst), plt.show()
+        #cv.imwrite('/tmp/out_2_4343_rotate.jpg', dst)
+        return dst[20:940, 35:1261]
+```
+
+Листинг . Функция определения диагонили контура.
+```python
+    def get_diagonal(self, box):
+        try:
+            x0, y0 = mean([x for x, y in box]), mean([y for x, y in box])
+            min_pt = [[x, y] for x, y in box if x <= x0 and y >= y0][0]
+            max_pt = [[x, y] for x, y in box if x >= x0 and y <= y0][0]
+
+            return math.dist(min_pt, max_pt)
+        except:
+            #print(box)
+            #print([[x, y] for x, y in box if x <= x0 and y <= y0])
+            return 0
+```
+
+Листинг . Функция определения меньшей и большей сторон контура.
+```python
+   def det_min_max_side(self, box):
+        A = ((box[1][0] - box[0][0])**2 + (box[1][1] - box[0][1])**2)**0.5
+        B = ((box[2][0] - box[1][0])**2 + (box[2][1] - box[1][1])**2)**0.5
+        C = ((box[3][0] - box[2][0])**2 + (box[3][1] - box[2][1])**2)**0.5
+        D = ((box[3][0] - box[0][0])**2 + (box[3][1] - box[0][1])**2)**0.5
+        sides = [A, B, C, D]
+        return min(sides) / 10.286, max(sides) / 10.286
 ```
 
 ### **3.3. Тестирование программно-аппартаной системы управления CNC станка**

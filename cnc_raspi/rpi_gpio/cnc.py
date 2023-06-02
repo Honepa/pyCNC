@@ -53,6 +53,11 @@ class CNC:
         self.gpio.setup([self.config.z_St, self.config.z_Dr, self.config.z_En], self.gpio.OUT, initial=self.gpio.LOW)
         self.gpio.output(self.config.z_En, 1)
 
+        FREQUENCY = 100
+    
+        self.gpio.setup(self.config.Freza, self.gpio.OUT)
+        self.freza = self.gpio.PWM(self.config.Freza, FREQUENCY)
+
     def __init_cnc__(self):
         print("[INFO:] INIT CNC")
         self.__init_axis_z__()
