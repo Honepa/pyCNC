@@ -49,10 +49,13 @@ if __name__ == '__main__':
     ret, thresh = cv.threshold(imgray, 0, 255, 0)
     contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
     
+    out = np.zeros((int(len(imgray)),int(len(imgray[0])), 3))
+
     #cv.drawContours(src, contours_, -1, (0, 255, 0), 3)
-    cv.drawContours(src, contours, -1, (0, 0, 255), 5)
+    cv.drawContours(out, contours, -1, (0, 0, 255), 5)
     #out = np.zeros((len(src[0]), len(src), 3))
     #cv.drawContours(out, contours, 0, (0, 0, 255), 3)
     print(len(contours[0]))
-    plt.imshow(src)
+    plt.imshow(out)
     plt.show()
+    cv.imwrite('/tmp/out.png', out)
