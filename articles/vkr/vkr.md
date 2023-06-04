@@ -385,7 +385,9 @@ def __init_axis_x__(self):
         return out
 ```
 
+Методу get_frames() передаётся id номер камеры, далее создаётся экземпляр класса cv.VideoCapture(id) с нужным номером камеры и проверяется исправность её открытия. После чего настраиваются бозовые свойства камеры и из четырёх последовательно полученных с камеры изображений пользователю отдаётся кадр повышенного в два раза, чем стандартное, разрешения.
 
+Ввиду несовершенства изготовления аппаратной части станка, необходимо исправить перспективу у изображения с основной камеры, для чего необходимо написать соответствующий код (Листинг ююююю).
 
 Листинг . Функция испарвления перспективы с основной камеры.
 ```python
@@ -405,6 +407,9 @@ def __init_axis_x__(self):
         return out[204:2097, 210:3296]
 ```
 
+Для исправления перспективы съемка велась таким образом, чтобы рабочий стол помещался в поле зрения камеры с достаточными "полями", затем в графическом редакторе были получены фактические  координаты четырёх углов стола и требуемые координаты для исправления перспективы, из полученных данных строилась матрица преобразования при помощи функции cv2.getPerspectiveTransform (src, dst) [9]. При её применении к изображению, а также пропустив изображение через функцию cv2.warpPerspective (src, M, dsize) [9] мы получаем  изображение в нужной проекции. Остаётся только обрезать изображение по контуру рабочего стола и передать его следующим функциям системы. 
+
+Следующий этап работы системы - это определение координат углов контура заготовки по Основной камере (Листинг юююю).
 
 Листинг . Функция определения координат углов контура заготовки по Основной камере.
 ```python
@@ -412,59 +417,42 @@ def __init_axis_x__(self):
         out_coor = list()
         hsv_min = np.array((0, 54, 5), np.uint8)
         hsv_max = np.array((187, 255, 253), np.uint8)
-
         img = cv.imread(img_path)
-
         hsv = cv.cvtColor( img, cv.COLOR_BGR2HSV ) 
         thresh = cv.inRange( hsv, hsv_min, hsv_max )
         contours0, hierarche = cv.findContours(thresh.copy(), cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-        img_t = img
-        #cv.drawContours(img_t, contours0, -1, (0, 0, 255), 3)
-        #plt.imshow(img_t)
-        #plt.show()
         for cnt in contours0:
             rect = cv.minAreaRect(cnt)
             box = cv.boxPoints(rect)
             box = np.int0(box)
             diagonal_ = self.get_diagonal(box) / 10.286
-            #cv.drawContours(img_t,[box],0,(255,0,0),2)
             min_side_, max_side_ = self.det_min_max_side(box)
             if ((diagonal_ < req_diagonal + 15) and (diagonal_ > req_diagonal - 15)) and ((min_side_ < min_side + 10) and (min_side_ > min_side - 10)) and ((max_side_ < max_side + 10) and (max_side_ > max_side - 10)):
-                #print(diagonal_)
                 out_coor = box
-                cv.drawContours(img,[box],0,(255,0,0),12) # рисуем прямоугольник
-                #plt.imshow(img),plt.show()
-                #print(img_path)
-                #print(box)
-                #print(convert_cam_0_to_mm(box))
-                cv.imwrite('/home/duhanin/Изображения/cnc/cnc_test_1/test_ten/find_plate_'+str(img_path.split('/')[-1].split('.')[0]) + '_' + str(int(time())%1000) + '.jpg',img)
-        #plt.imshow(img_t)
-        #plt.show()
+                cv.drawContours(img,[box],0,(255,0,0),12)
+                cv.imwrite('/tmp/'+str(img_path.split('/')[-1].split('.')[0]) + '_' + str(int(time())%1000) + '.jpg',img)
         return out_coor
 ```
 
+В работе [5] рассмотрено решение подобной задачи, но в условиях нашей задачи мы можем упростить работу, так как мы знаем размер заготовки (заготовки печатных плат имеют известные параметры ширины, выстоты и толщины) [10]. Применив функцию cv2.findContours() [9], мы получим список всех найденных на изображении контуров. Посчитав диагональ, меньшую и большую стороны каждого контура и зная диагональ, меньшую и большую стороны искомого, выбираем нужный контур и передаём координаты углов контура следующим функциям системы (рис. 3).
+
 ![Рисунок . Результат идентификации контура заготовки печатной платы по изображению с камеры общего вида](img/find_plate_perspective_out_0_525_979_737.jpg "Рисунок . Результат идентификации контура заготовки печатной платы по изображению с камеры общего вида")
 
-Рисунок  . Результат идентификации контура заготовки печатной платы по изображению с камеры общего вида
+Рисунок  . Результат идентификации контура заготовки печатной платы по изображению с Основной камеры.
+
+Далле рассмотрим функц
 
 Листинг . Функция определения координаты угла по Уточняющей камере
 ```python
-def find_corner_by_cam_one(self, img):
+	def find_corner_by_cam_one(self, img):
         img = img
         gray = cv.cvtColor(img,cv.COLOR_BGR2GRAY)
         edges = cv.Canny(gray,100,200,apertureSize = 3)
         lines = cv.HoughLinesP(edges,1,np.pi/180,2,minLineLength=30,maxLineGap=10)
         vertical, horizontal, img = self.get_vertical_and_horizontal(lines, img)
-    
-        #print(vertical)
 
         best_vertical = self.get_best_vertical(vertical)
-        #print(best_vertical)
         best_horisontal = self.get_best_horizontal(horizontal)
-        #print(best_horisontal)
-
-        cv.line(img,(best_vertical[0],best_vertical[1]),(best_vertical[2],best_vertical[3]),(0,0,255),12)
-        cv.line(img,(best_horisontal[0],best_horisontal[1]),(best_horisontal[2],best_horisontal[3]),(255,255,0),12)
 
         line1 = Line(Point(best_vertical[0], best_vertical[1]), Point(best_vertical[2], best_vertical[3]))
         line2 = Line(Point(best_horisontal[0], best_horisontal[1]), Point(best_horisontal[2], best_horisontal[3]))
@@ -477,11 +465,6 @@ def find_corner_by_cam_one(self, img):
             y_intersection = int(str(intersect[0][1]).split('/')[0]) / int(str(intersect[0][1]).split('/')[1])
         else:
             y_intersection = int(str(intersect[0][1]))
-        #print(x_intersection, y_intersection)
-        cv.circle(img, (int(x_intersection),int(y_intersection)), radius=12, color=(255, 0, 255), thickness=-1)
-        cv.circle(img, (640,480), radius=12, color=(255, 255, 255), thickness=-1)
-        #plt.imshow(img)
-        #plt.show()
         return (640 - x_intersection)/34.5 , (480 - y_intersection)/35, img
 ```
 
