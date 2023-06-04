@@ -440,9 +440,9 @@ def __init_axis_x__(self):
 
 Рисунок  . Результат идентификации контура заготовки печатной платы по изображению с Основной камеры.
 
-Далле рассмотрим функц
+Далле рассмотрим программу уточнения координат заготовки печатной платы (Листинг ).
 
-Листинг . Функция определения координаты угла по Уточняющей камере
+Листинг . Программа уточнения координат заготовки печатной платы.
 ```python
 	def find_corner_by_cam_one(self, img):
         img = img
@@ -466,61 +466,48 @@ def __init_axis_x__(self):
         else:
             y_intersection = int(str(intersect[0][1]))
         return (640 - x_intersection)/34.5 , (480 - y_intersection)/35, img
+
+for corner in coor_for_cam_one:
+    stanok.go_to_coor(corner[0], corner[1])
+    stanok.z_go(1500, 1)
+    t = str(int(time())%100000)
+    img = stanok.get_frames(2)
+    cv.imwrite(f'/tmp/out_{2}_{t}.jpeg', img)
+    img = fwa.rotate(f'/tmp/out_{2}_{t}.jpeg', angle = 1.8)
+    dx, dy, img = fwa.find_corner_by_cam_one(img)
+    dx = int(round(dx, 2) * 100)
+    dy = int(round(dy, 2) * 100)
+    count = 0
+    while ((count > 150) or ((dx**2 + dy**2)**0.5 > 10)):
+        stanok.x_go(-dx, 1)
+        stanok.y_go(dy, 1)
+        img = stanok.get_frames(2)
+        t = str(int(time())%100000)
+        cv.imwrite(f'/tmp/out_{2}_{t}.jpeg', img)
+        img = fwa.rotate(f'/tmp/out_{2}_{t}.jpeg', angle = 1.8)
+        dx, dy, img = fwa.find_corner_by_cam_one(img)
+        dx = int(round(dx, 2) * 100)
+        dy = int(round(dy, 2) * 100)
+        ount += 1
+    print(stanok.coordinates)
+    stanok.__init_axis_z__()
+    coor_of_plate += [stanok.coordinates]
+print(coor_of_plate)
 ```
 
 ![Рисунок 4. Результат идентификации угла заготовки печатной платы по изображению с уточняющей камеры](img/out_2_4343_rotate.jpg "Результат идентификации угла заготовки печатной платы по изображению с уточняющей камеры")
 
-Рисунок 4 - Результат идентификации угла заготовки печатной платы по изображению с уточняющей камеры.
+Рисунок  - Результат идентификации угла заготовки печатной платы по изображению с уточняющей камеры.
 
-Листинг . Программа определения координат углов контура заготовки печатной платы.
-```python
-        out_pix_coor = fwa.find_board_by_cam_two('/tmp/out_linear.jpg', (a**2 + b**2)**0.5 ,55, 65)
-        coor_board_by_cam_two = fwa.convert_cam_0_to_mm(out_pix_coor)
-        coor_for_cam_one = [[int(round(x, 2)*100) - 3264, int(round(y, 2)*100) + 2672] for [x, y] in coor_board_by_cam_two]
-        print(coor_for_cam_one)
+На этом этапе необходимо выполнить уточнение координат угла заготовки печатной платы по дополнительной камере. Получив на предыдущем шаге координату угла контура, нообходимо переместить центр камеры по этой координате и получить снимок. Последующие алгоритмы потребуют работу с изображением в двухканальном представлении, для этого применим к исходному изображению функцию cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) [9], где img - это исходное изображение, а cv2.COLOR_BGR2GRAY - требуемый цветовой фильтр. В работе [5] приведено преимущество использования метода сегментации Канни [6], который мы и применим к нашему изображению, получив изображение с краями. Эту информацию необходимо отдать на обработку функции cv2.HoughLinesP [9], которая отдаст нам все линии на изображении. Далее разделим линии на две группы: те которые "более горизонтальные" и те которые "более вертикальные". Мы можем так поступить т.к. заготовка изначально имеет прямоугольную форму. Из каждой группы необходимо методом кластеризации выбрать линюю, вокруг которой будет больше всего точек, образующих контуры, эта линии и будут образовывать вертикальный и горизонтальный край заготовки. Наконец надо определить точку пересечения этих линий - это угол платы, а так же посчитать смещение относительно центра снимка.
 
-        coor_of_plate = list()
-        for corner in coor_for_cam_one:
-            stanok.go_to_coor(corner[0], corner[1])
-            stanok.z_go(1500, 1)
-            t = str(int(time())%100000)
-            img = stanok.get_frames(2)
-            cv.imwrite(f'/tmp/out_{2}_{t}.jpeg', img)
-            img = fwa.rotate(f'/tmp/out_{2}_{t}.jpeg', angle = 1.8)
-            dx, dy, img = fwa.find_corner_by_cam_one(img)
-            #stanok.init_axis_z()
-            dx = int(round(dx, 2) * 100)
-            dy = int(round(dy, 2) * 100)
-            #print(dx, dy)
-            count = 0
-            while ((count > 150) or ((dx**2 + dy**2)**0.5 > 10)):
-                stanok.x_go(-dx, 1)
-                stanok.y_go(dy, 1)
-                img = stanok.get_frames(2)
-                t = str(int(time())%100000)
-                cv.imwrite(f'/tmp/out_{2}_{t}.jpeg', img)
-                #print(f"[INFO:] img write in /tmp/out_{2}_{t}.jpeg")
-                img = fwa.rotate(f'/tmp/out_{2}_{t}.jpeg', angle = 1.8)
-                #img = cv.imread('/tmp/out_2_76735_.jpeg')
-                dx, dy, img = fwa.find_corner_by_cam_one(img)
-                #plt.imshow(img)
-                #plt.show()
-                dx = int(round(dx, 2) * 100)
-                dy = int(round(dy, 2) * 100)
-                #print(dx, dy)
-                count += 1
-            print(stanok.coordinates)
-            if count > 150:
-                print(f"[ERROR:] error by corner in {corner}")
-            stanok.__init_axis_z__()
-            coor_of_plate += [stanok.coordinates]
-        print(coor_of_plate)
-```
+Далее, переместив камеру на найденное смещение, повторяем вышеописанную процедуру, пока смещение не составит меньше чем одна десятая доля миллиметра. Так же повторяем всё это с остальными углами получая уточненное значение углов заготовки (рис. 4). Полученные координаты передаются следующим системам управления CNC-станка.
 
+После того как мы получили координаты углов заготовки печатной платы, желательно приступить к обработке схемы печатной платы. Как уже говорилось ранее, на вход программы поустпает файл сверловки и рисунок печатной платы в формате Bitmap. Начнём с разбора файла сверловки (Листинг ...), пример файла сверловки представлен в Приложении .
 
 Листинг . Код разбора файла сверловки печатной платы.
 ```python
-	f = open('/home/duhanin/Документы/CNC станок (ВКР)/test_plate.drl', 'r')
+	f = open('/tmp/test_plate.drl', 'r')
     file = list()
     for line in f:
         file.append(line)
@@ -547,13 +534,11 @@ def __init_axis_x__(self):
     print(drill)
     for_draw = [[int(point[0] * 40), int((point[1] * 47.25)/100),int((point[2]*47.25)/100)] for point in drill]
     print(for_draw)
-    src = cv.imread("/home/duhanin/Документы/CNC станок (ВКР)/test_plate.bmp")
+    src = cv.imread("/tmp/test_plate.bmp")
 
     for point in for_draw:
         print(point)
         cv.circle(src, (point[1], point[2]), int(point[0]/200), (0, 255, 0), point[0]*2)
-    #plt.imshow(src)
-    #plt.show()
 ```
 
 Листинг . Код закрашивания отверстий под компоненты на схеме печатной платы.
@@ -562,16 +547,10 @@ def __init_axis_x__(self):
     ret, thresh = cv.threshold(imgray, 0, 255, 0)
     contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
     cv.drawContours(src, contours, -1, (0, 255, 0), 10)
-    contours_ = contours
-    
     imgray = cv.cvtColor(src, cv.COLOR_BGR2GRAY)
     ret, thresh = cv.threshold(imgray, 0, 255, 0)
     contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-    
-    #cv.drawContours(src, contours_, -1, (0, 255, 0), 3)
     cv.drawContours(src, contours, -1, (0, 0, 255), 5)
-    #out = np.zeros((len(src[0]), len(src), 3))
-    #cv.drawContours(out, contours, 0, (0, 0, 255), 3)
     print(len(contours[0]))
     plt.imshow(src)
     plt.show()
@@ -585,7 +564,6 @@ def __init_axis_x__(self):
 Листинг . Функция определения высоты рабочего инструмента.
 ```python
     def get_zero_freza(self):
-        #init_axis_z()
         f = 0
         test_coor_z_list = list()
         for i in range(5):
@@ -595,52 +573,11 @@ def __init_axis_x__(self):
                 f = 0
                 for i in range(100):
                     f += self.gpio.input(self.config.F_END)
-            #print(f)
             test_coor_z_list.append(self.coordinates[self.coor_z])
             self.z_go(-400, 4)
-        #print(test_coor_z_list)
-        #print(mean(test_coor_z_list))
-        #init_axis_z()
         return mean(test_coor_z_list)
 ```
 
-Листинг . Функция поворота изображения.
-```python
-    def rotate(self, img_path, angle):
-        img = cv.imread(img_path)
-        rows,cols = img.shape[0], img.shape[1]
-        M = cv.getRotationMatrix2D(((cols-1)/2.0,(rows-1)/2.0),angle,1)
-        dst = cv.warpAffine(img,M,(cols,rows))
-        #plt.imshow(dst), plt.show()
-        #cv.imwrite('/tmp/out_2_4343_rotate.jpg', dst)
-        return dst[20:940, 35:1261]
-```
-
-Листинг . Функция определения диагонили контура.
-```python
-    def get_diagonal(self, box):
-        try:
-            x0, y0 = mean([x for x, y in box]), mean([y for x, y in box])
-            min_pt = [[x, y] for x, y in box if x <= x0 and y >= y0][0]
-            max_pt = [[x, y] for x, y in box if x >= x0 and y <= y0][0]
-
-            return math.dist(min_pt, max_pt)
-        except:
-            #print(box)
-            #print([[x, y] for x, y in box if x <= x0 and y <= y0])
-            return 0
-```
-
-Листинг . Функция определения меньшей и большей сторон контура.
-```python
-   def det_min_max_side(self, box):
-        A = ((box[1][0] - box[0][0])**2 + (box[1][1] - box[0][1])**2)**0.5
-        B = ((box[2][0] - box[1][0])**2 + (box[2][1] - box[1][1])**2)**0.5
-        C = ((box[3][0] - box[2][0])**2 + (box[3][1] - box[2][1])**2)**0.5
-        D = ((box[3][0] - box[0][0])**2 + (box[3][1] - box[0][1])**2)**0.5
-        sides = [A, B, C, D]
-        return min(sides) / 10.286, max(sides) / 10.286
-```
 
 ### **3.3. Тестирование программно-аппартаной системы управления CNC станка**
 
@@ -728,4 +665,47 @@ Out[666]: [0.17, 0.42, 0.87, 0.24, 0.22, 0.28, 0.27, 0.32, 0.22, 0.23]
 
 ### **Приложение Б**
 
+Пример файла сверловки.
+
+>test.drl
+
+>M48
+>M71
+>T01C0.7
+>T02C1.0
+>T03C1.5
+>%
+>G05
+>T01
+>X02032Y08763
+>X02540Y08763
+>X02794Y09144
+>T02
+>X00635Y07874
+>X00508Y08636
+>X00889Y08636
+>X00635Y09017
+>X00889Y09525
+>X00381Y09525
+>X01524Y09398
+>X01524Y09652
+>X01651Y09017
+>X01524Y08382
+>X01524Y07874
+>X02286Y08255
+>X02921Y08763
+>X03175Y08763
+>X03175Y09271
+>X02794Y09525
+>X02413Y09144
+>X02159Y09525
+>X03175Y08001
+>T03
+>X00508Y08255
+>M30
+
+### **Приложение В**
+
 ![архмед](img/archimed.png "архимед")
+
+
