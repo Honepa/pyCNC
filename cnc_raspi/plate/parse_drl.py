@@ -32,7 +32,7 @@ if __name__ == '__main__':
     for_draw = [[int(point[0] * 40), int((point[1] * 47.25)/100),int((point[2]*47.25)/100)] for point in drill]
     print(for_draw)
     src = cv.imread("/home/duhanin/Документы/CNC станок (ВКР)/test_plate.bmp")
-
+    start_img = cv.imread("/home/duhanin/Документы/CNC станок (ВКР)/test_plate.bmp")
     for point in for_draw:
         print(point)
         cv.circle(src, (point[1], point[2]), int(point[0]/200), (0, 255, 0), point[0]*2)
@@ -52,10 +52,14 @@ if __name__ == '__main__':
     out = np.zeros((int(len(imgray)),int(len(imgray[0])), 3))
 
     #cv.drawContours(src, contours_, -1, (0, 255, 0), 3)
-    cv.drawContours(out, contours, -1, (0, 0, 255), 5)
+    cv.drawContours(out, contours, -1, (0, 125, 255), 5)
     #out = np.zeros((len(src[0]), len(src), 3))
     #cv.drawContours(out, contours, 0, (0, 0, 255), 3)
     print(len(contours[0]))
-    plt.imshow(out)
+
+    plt.subplot(1, 2, 1), plt.imshow(start_img), plt.title("plate")
+    plt.subplot(1, 2, 2), plt.imshow(out), plt.title("contours")
+
+    #plt.imshow(out)
     plt.show()
-    cv.imwrite('/tmp/out.png', out)
+    #cv.imwrite('/tmp/out.png', out)
