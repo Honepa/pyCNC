@@ -89,7 +89,7 @@ class FWA:
             if ((diagonal_ < req_diagonal + 15) and (diagonal_ > req_diagonal - 15)) and ((min_side_ < min_side + 10) and (min_side_ > min_side - 10)) and ((max_side_ < max_side + 10) and (max_side_ > max_side - 10)):
                 #print(diagonal_)
                 out_coor = box
-                cv.drawContours(img,[box],0,(255,0,0),12) # рисуем прямоугольник
+                cv.drawContours(img,[box],0,(0,0,255),40) # рисуем прямоугольник
                 #plt.imshow(img),plt.show()
                 #print(img_path)
                 #print(box)
@@ -227,7 +227,7 @@ if __name__ == '__main__':
         dx = int(round(dx, 2) * 100)
         dy = int(round(dy, 2) * 100)
         print(dx, dy)
-    '''
+    
     fwa = FWA()
     #img = fwa.rotate('/tmp/out_2_4343.jpeg', angle = 1.8)
     #dx, dy, img = find_corner_by_cam_one('/tmp/out_2_815.jpeg')
@@ -245,5 +245,5 @@ if __name__ == '__main__':
     out_pix_coor = fwa.find_board_by_cam_two('/tmp/out_linear.jpg', (a**2 + b**2)**0.5 ,140, 190)
     coor_board_by_cam_two = fwa.convert_cam_0_to_mm(out_pix_coor)
     print(coor_board_by_cam_two)
-    '''
+    
     
