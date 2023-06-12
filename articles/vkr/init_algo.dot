@@ -1,17 +1,17 @@
 digraph "round-table" {
     A [label="Начало"]
-    Start    [label="На большой скорости подъезд шаговым двигателем \n оси Z  до срабатывания концевого датчика", shape=box]
+    Start    [label="На большой скорости подъезд шаговым двигателем \n  до срабатывания концевого датчика", shape=box]
     K_END   [label="Отъезд от концевого датчика на заданное расстояние", shape=box]
     OT [label="Подъезд на малой скорости до срабатывания концевого датчика", shape=box]
     Snova   [label="Отъезд от концевого датчика до прекращения срабатывания ", shape=box]
-    Re   [label="Повторение по осям X и Y", shape=box]
+
     L [label="Конец"]
     A -> Start
     Start -> K_END 
     K_END -> OT 
 
     OT -> Snova 
-    Snova -> Re 
-    Re -> L
+    Snova -> L
+
 
 }
