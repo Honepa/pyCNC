@@ -292,6 +292,6 @@ if __name__ == "__main__":
         img = get_frames(0)
         cv.imwrite(f'/tmp/out_{0}_{str(int(time())%1000)}.jpeg', img)
     '''
-    #GPIO.cleanup()
+    GPIO.cleanup()
 
 
