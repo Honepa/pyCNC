@@ -5,7 +5,7 @@ TODO:
 #sys.path.append('..')
 #import photo_test.find_work_area
 """
-import rpi_gpio.config
+import config.py
 from time import sleep, time
 import cv2 as cv
 import numpy as np
