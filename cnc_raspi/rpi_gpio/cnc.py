@@ -236,7 +236,7 @@ if __name__ == "__main__":
     cnc = CNC(GPIO)
     cnc.__init_cnc__()
     
-    cnc.go_to_coor(0, 26350)
+    cnc.go_to_coor(0, 16000)
     print(cnc.coordinates)
     img = cnc.get_frames(0)
     t = str(int(time())%100000)
