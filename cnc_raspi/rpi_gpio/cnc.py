@@ -7,7 +7,7 @@ TODO:
 """
 import config
 from time import sleep, time
-import cv2
+import cv2 as cv
 import numpy as np
 import sys
 import RPi.GPIO as GPIO
@@ -29,8 +29,8 @@ class CNC:
         self.__set_initial_values()
         self.__init_gpio__()
         self.cams = []
-        self.cams.append(cv2.VideoCapture(0))
-        self.cams.append(cv2.VideoCapture(2))
+        self.cams.append(cv.VideoCapture(0))
+        self.cams.append(cv.VideoCapture(2))
         #self.__init_cnc__()
 
     def __set_initial_values(self):
@@ -189,7 +189,7 @@ class CNC:
         assert cam.isOpened()
         cam.set(3, 1920)
         cam.set(4, 1080)
-        cam.set(cv2.cv.CV_CAP_PROP_EXPOSURE, 0.1)
+        cam.set(cv.CAP_PROP_EXPOSURE, 0.1)
         out = np.zeros((int(cam.get(4)*2),int(cam.get(3)*2), 3))
         frame = cam.read()
         #for i in range(10):
@@ -200,9 +200,9 @@ class CNC:
         return out
 
     def camera_screen(self, coordinates):
-        ret, frame = cv2.VideoCapture(0).read()
+        ret, frame = cv.VideoCapture(0).read()
         screen_name = f'/tmp/cnc/{str(self.coordinates)}.jpeg'
-        cv2.imwrite(screen_name, frame)
+        cv.imwrite(screen_name, frame)
         print("Screen saved in " + screen_name)
 
     def go_to_coor(self, x, y):
@@ -248,7 +248,7 @@ if __name__ == "__main__":
     img = cnc.get_frames(0)
     print(time() - st)
     t = str(int(time())%100000)
-    cv2.imwrite(f'/tmp/out_{2}_{t}.jpeg', img)
+    cv.imwrite(f'/tmp/out_{2}_{t}.jpeg', img)
     #cnc.camera_screen(cnc.coordinates)
     #x_go(0, 1)
     #y_go(2672, 1)
