@@ -28,6 +28,7 @@ class CNC:
         self.config = config
         self.__set_initial_values()
         self.__init_gpio__()
+        self.cams = []
         self.cams[0] = cv.VideoCapture(0)
         self.cams[1] = cv.VideoCapture(2)
         #self.__init_cnc__()
