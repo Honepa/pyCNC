@@ -187,15 +187,15 @@ class CNC:
     def get_frames(self, id):
         cam  = self.cams[id]
         assert cam.isOpened()
-        #cam.set(3, 1920)
-        #cam.set(4, 1080)
+        cam.set(3, 1920)
+        cam.set(4, 1080)
         out = np.zeros((int(cam.get(4)*2),int(cam.get(3)*2), 3))
         frame = cam.read()
         #for i in range(10):
-        out[::2 ,  ::2] = frame[1]
-        out[::2 , 1::2] = frame[1]
-        out[1::2,  ::2] = frame[1]
-        out[1::2, 1::2] = frame[1]
+        out[::2 ,  ::2] = cam.read()[1]
+        out[::2 , 1::2] = cam.read()[1]
+        out[1::2,  ::2] = cam.read()[1]
+        out[1::2, 1::2] = cam.read()[1]
         return out
 
     def camera_screen(self, coordinates):
