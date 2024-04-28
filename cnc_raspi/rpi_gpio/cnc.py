@@ -233,11 +233,11 @@ if __name__ == "__main__":
     cnc = CNC(GPIO)
     cnc.__init_cnc__()
     
-    #cnc.x_go(15696)
-    #cnc.y_go(3076)
-    #cnc.z_go(1600)
-    #print(cnc.coordinates)
-    cnc.stop()
+    cnc.x_go(15696)
+    cnc.y_go(3076)
+    cnc.z_go(1600)
+    print(cnc.coordinates)
+    cnc.camera_screen(cnc.coordinates)
     #x_go(0, 1)
     #y_go(2672, 1)
     #z_go(1500, 1)
@@ -292,6 +292,7 @@ if __name__ == "__main__":
         img = get_frames(0)
         cv.imwrite(f'/tmp/out_{0}_{str(int(time())%1000)}.jpeg', img)
     '''
+    cnc.stop_gpio()
     GPIO.cleanup()
 
 
