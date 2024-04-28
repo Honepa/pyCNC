@@ -79,7 +79,7 @@ class CNC:
             self.x_go(1, 0.1)
         self.coordinates[self.coor_x] = 0
 
-    def x_go(self, mm, speed_x = 1):
+    def x_go(self, mm, speed_x = 6):
         steps = mm * self.config.X_STEPS_MM
         self.gpio.output(self.config.x_En, 0)
         d = self.FRW if steps > 0 else self.BCK
@@ -111,7 +111,7 @@ class CNC:
             self.y_go(1, 0.1)
         self.coordinates[self.coor_y] = 0
 
-    def y_go(self, mm, speed_y = 1):
+    def y_go(self, mm, speed_y = 6):
         steps = mm * self.config.Y_STEPS_MM
         self.gpio.output(self.config.y_En, 0)
         d = self.FRW if steps > 0 else self.BCK
@@ -143,7 +143,7 @@ class CNC:
             self.z_go(1, 0.1)
         self.coordinates[self.coor_z] = 0
 
-    def z_go(self, mm, speed_z = 1):
+    def z_go(self, mm, speed_z = 6):
         steps = mm * self.config.Z_STEPS_MM
         self.gpio.output(self.config.z_En, 0)
         d = self.FRW if steps > 0 else self.BCK
@@ -234,7 +234,7 @@ if __name__ == "__main__":
     cnc.__init_cnc__()
     
     cnc.x_go(0)
-    cnc.y_go(3264)
+    cnc.y_go(32640)
     cnc.z_go(0)
     print(cnc.coordinates)
     img = cnc.get_frames(0)
@@ -296,6 +296,6 @@ if __name__ == "__main__":
         cv.imwrite(f'/tmp/out_{0}_{str(int(time())%1000)}.jpeg', img)
     '''
     cnc.stop_gpio()
-    GPIO.cleanup()
+    #GPIO.cleanup()
 
 
