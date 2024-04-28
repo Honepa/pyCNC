@@ -190,11 +190,11 @@ class CNC:
         cam.set(3, 1920)
         cam.set(4, 1080)
         out = np.zeros((int(cam.get(4)*2),int(cam.get(3)*2), 3))
-        for i in range(10):
-            out[::2 ,  ::2] = cam.read()[1]
-            out[::2 , 1::2] = cam.read()[1]
-            out[1::2,  ::2] = cam.read()[1]
-            out[1::2, 1::2] = cam.read()[1]
+        #for i in range(10):
+        out[::2 ,  ::2] = cam.read()[1]
+        out[::2 , 1::2] = cam.read()[1]
+        out[1::2,  ::2] = cam.read()[1]
+        out[1::2, 1::2] = cam.read()[1]
         return out
 
     def camera_screen(self, coordinates):
@@ -234,11 +234,17 @@ if __name__ == "__main__":
     '''
     #zero cam one - 32.64 ; 0 ???31.93???
     cnc = CNC(GPIO)
+    '''
+    
     cnc.__init_cnc__()
     
     cnc.go_to_coor(0, 16000)
     print(cnc.coordinates)
+    
+    '''
+    st = time.time()
     img = cnc.get_frames(0)
+    print(time.time() - st)
     t = str(int(time())%100000)
     cv.imwrite(f'/tmp/out_{2}_{t}.jpeg', img)
     #cnc.camera_screen(cnc.coordinates)
