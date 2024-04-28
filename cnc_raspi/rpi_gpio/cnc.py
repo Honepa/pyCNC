@@ -231,7 +231,7 @@ if __name__ == "__main__":
     '''
     #zero cam one - 32.64 ; 0 ???31.93???
     cnc = CNC(GPIO)
-    cnc.cnc_init()
+    cnc.__init_cnc__()
     
     #cnc.x_go(15696)
     #cnc.y_go(3076)
