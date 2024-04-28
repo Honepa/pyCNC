@@ -28,6 +28,8 @@ class CNC:
         self.config = config
         self.__set_initial_values()
         self.__init_gpio__()
+        self.cams[0] = cv.VideoCapture(0)
+        self.cams[1] = cv.VideoCapture(2)
         #self.__init_cnc__()
 
     def __set_initial_values(self):
@@ -182,7 +184,7 @@ class CNC:
     
 
     def get_frames(self, id):
-        cam = cv.VideoCapture(id)
+        cam  = self.cams[id]
         assert cam.isOpened()
         cam.set(3, 1920)
         cam.set(4, 1080)
@@ -233,7 +235,7 @@ if __name__ == "__main__":
     cnc = CNC(GPIO)
     cnc.__init_cnc__()
     
-    cnc.go_to_coor(0, 2635)
+    cnc.go_to_coor(0, 26350)
     print(cnc.coordinates)
     img = cnc.get_frames(0)
     t = str(int(time())%100000)
