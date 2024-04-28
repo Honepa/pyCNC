@@ -203,8 +203,8 @@ class CNC:
     def go_to_coor(self, x, y):
         dx = x - int(self.coordinates[self.coor_x] / 1000)
         dy = y - int(self.coordinates[self.coor_y] / 1000)
-        self.x_go(dx, 1)
-        self.y_go(dy, 1)
+        self.x_go(dx)
+        self.y_go(dy)
 
     def stop_gpio(self):
         self.gpio.cleanup()
@@ -233,9 +233,7 @@ if __name__ == "__main__":
     cnc = CNC(GPIO)
     cnc.__init_cnc__()
     
-    cnc.x_go(0)
-    cnc.y_go(32640)
-    cnc.z_go(0)
+    cnc.go_to_coor(0, 2635)
     print(cnc.coordinates)
     img = cnc.get_frames(0)
     t = str(int(time())%100000)
