@@ -242,9 +242,9 @@ if __name__ == "__main__":
     print(cnc.coordinates)
     
     '''
-    st = time.time()
+    st = time()
     img = cnc.get_frames(0)
-    print(time.time() - st)
+    print(time() - st)
     t = str(int(time())%100000)
     cv.imwrite(f'/tmp/out_{2}_{t}.jpeg', img)
     #cnc.camera_screen(cnc.coordinates)
