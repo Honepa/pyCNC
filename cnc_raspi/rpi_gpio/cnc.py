@@ -192,7 +192,7 @@ class CNC:
         cam.set(cv.CAP_PROP_AUTO_EXPOSURE, 0.25)
         cam.set(cv.CAP_PROP_EXPOSURE, 5000)
         out = np.zeros((int(cam.get(4)*2),int(cam.get(3)*2), 3))
-        frame = cam.read().copy()
+        frame = cam.read()
         for i in range(1):
             out[::2 ,  ::2] = frame[1]
             out[::2 , 1::2] = frame[1]
