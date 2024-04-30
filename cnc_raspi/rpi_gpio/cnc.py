@@ -189,8 +189,8 @@ class CNC:
         assert cam.isOpened()
         cam.set(3, 1920)
         cam.set(4, 1080)
-        #cam.set(cv.CAP_PROP_AUTO_EXPOSURE, 0.25)
-        #cam.set(cv.CAP_PROP_EXPOSURE, 5000)
+        cam.set(cv.CAP_PROP_AUTO_EXPOSURE, 0.25)
+        cam.set(cv.CAP_PROP_EXPOSURE, 5000)
         out = np.zeros((int(cam.get(4)*2),int(cam.get(3)*2), 3))
         for i in range(1):
             out[::2 ,  ::2] = cam.read()[1]
@@ -236,9 +236,9 @@ if __name__ == "__main__":
     '''
     #zero cam one - 32.64 ; 0 ???31.93???
     cnc = CNC(GPIO)
-    cnc.__init_cnc__()
+    #cnc.__init_cnc__()
     
-    cnc.go_to_coor(0, 16000)
+    #cnc.go_to_coor(0, 16000)
     '''
     
     cnc.__init_cnc__()
