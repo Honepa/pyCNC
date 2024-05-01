@@ -240,10 +240,12 @@ if __name__ == '__main__':
     #out = correcting_perspective(img_orig)
     #cv.imwrite('/tmp/out_linear.jpg', out)
     fwa = FWA()
+    
+    '''
     a = 140
     b = 190
     out_pix_coor = fwa.find_board_by_cam_two('/tmp/out_linear.jpg', (a**2 + b**2)**0.5 ,140, 190)
     coor_board_by_cam_two = fwa.convert_cam_0_to_mm(out_pix_coor)
     print(coor_board_by_cam_two)
-    
+    '''
     

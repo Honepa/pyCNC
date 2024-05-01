@@ -189,8 +189,8 @@ class CNC:
         assert cam.isOpened()
         cam.set(3, 1920)
         cam.set(4, 1080)
-        cam.set(cv.CAP_PROP_AUTO_EXPOSURE, 0.25)
-        cam.set(cv.CAP_PROP_EXPOSURE, 5000)
+        #cam.set(cv.CAP_PROP_AUTO_EXPOSURE, 0.25)
+        #cam.set(cv.CAP_PROP_EXPOSURE, 5000)
         out = np.zeros((int(cam.get(4)*2),int(cam.get(3)*2), 3))
         for i in range(1):
             out[::2 ,  ::2] = cam.read()[1]
