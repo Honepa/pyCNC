@@ -247,11 +247,13 @@ if __name__ == "__main__":
     print(cnc.coordinates)
     
     '''
-    st = time()
-    img = cnc.get_frames(0)
-    print(time() - st)
-    t = str(int(time())%100000)
-    cv.imwrite(f'/tmp/out_{2}_{t}.png', img)
+    for i in range(30):
+        print('foto is ', i)
+        st = time()
+        img = cnc.get_frames(0)
+        print(time() - st)
+        t = str(int(time())%100000)
+        cv.imwrite(f'/tmp/out_{2}_{t}.png', img)
     #cnc.camera_screen(cnc.coordinates)
     #x_go(0, 1)
     #y_go(2672, 1)
