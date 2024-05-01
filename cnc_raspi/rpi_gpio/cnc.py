@@ -248,7 +248,7 @@ if __name__ == "__main__":
     
     '''
     
-    print('foto is ', i)
+    print('foto is ')
     st = time()
     img = cnc.get_frames(0)
     print(time() - st)
